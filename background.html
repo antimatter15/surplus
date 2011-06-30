@@ -1,4 +1,11 @@
-
+<iframe src="http://blogsearch.google.com/?extension=surplus" style="width:440px;height:500px" id="frame"></iframe>
 <script>
-
+ var frame = document.getElementById('frame');
+ 
+ function evacuate(){
+  console.log('restoring window')
+  document.adoptNode(frame)
+  document.body.appendChild(frame)
+  console.log('done restore');
+ }
 </script>
