@@ -1,11 +1,40 @@
 <iframe src="http://blogsearch.google.com/?extension=surplus" style="width:440px;height:500px" id="frame"></iframe>
 <script>
- var frame = document.getElementById('frame');
- 
- function evacuate(){
-  console.log('restoring window')
-  document.adoptNode(frame)
-  document.body.appendChild(frame)
-  console.log('done restore');
- }
+  var frame = document.getElementById('frame');
+
+  function evacuate(){
+    global_port.postMessage({})
+    console.log('restoring window')
+    document.adoptNode(frame)
+    document.body.appendChild(frame)
+    console.log('done restore');
+  }
+  var global_port;
+  function open_popup(){
+    global_port.postMessage({})
+  }
+  
+  function drawIcon(num){
+    var c = document.createElement('canvas').getContext('2d');
+    var img = new Image();
+    if(num == 0){
+      img.src = '19.png'
+    }else{
+      img.src = '19new.png'
+    }
+    img.onload = function(){
+      c.drawImage(img, 0, 0);
+      c.font = "bold 13px arial,sans-serif";
+      c.fillStyle = num == 0 ? '#AAA' : '#fff';
+      c.fillText(num+'', 6, 14);
+      chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
+    }
+  }
+  chrome.extension.onConnect.addListener(function(port) {
+    global_port = port;
+  })
+  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+    var num = parseInt(request.num);
+    if(!isNaN(num)) drawIcon(num);
+  })
 </script>

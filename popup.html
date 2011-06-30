@@ -2,7 +2,7 @@
 <script>
 var bg = chrome.extension.getBackgroundPage();
 var frame = bg.document.getElementById('frame');
-bg.evacuate();
+bg.open_popup()
 document.adoptNode(frame);
 document.body.appendChild(frame);
 

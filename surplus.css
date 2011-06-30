@@ -1,0 +1,32 @@
+body {
+  overflow: hidden !important;
+  background-color: white !important;
+}
+
+
+#gbg, #gbwc {
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.gbtc {
+  display: none !important;
+}
+
+
+#gbwc iframe {
+  position: absolute !important;
+  top: 22px !important;
+  left: 0 !important;
+  background-color: white !important;
+  z-index: 999999999999 !important;
+}
+
+center {
+  display: none !important;
+}
+
+#gbx3, #gbx4 {
+  background-color: white !important;
+  border: none !important;
+}
