@@ -1,0 +1,16 @@
+<iframe src="http://blogsearch.google.com/?q=&hl=en&tab=sb" id="frame" style="width: 440px; height: 550px"></iframe>
+<script>
+function doSomethingCoolThatNeedsANewWindow() {
+     var childWin = window.open("bubble.html");
+     mySharedIFrame = document.getElementById('frame');
+     childWin.onload = function() {
+        console.log('fired onload');
+         childWin.functionThatTakesScriptContext(mySharedIFrame);
+     }
+ }
+ 
+ function evacuate(){
+   document.adoptNode(mySharedIFrame)
+document.body.appendChild(mySharedIFrame)
+ }
+</script>

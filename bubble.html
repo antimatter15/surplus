@@ -1,0 +1,15 @@
+<script>
+function functionThatTakesScriptContext(shared){
+  supershare = shared;
+  console.log('got shared');
+ document.adoptNode(supershare)
+document.body.appendChild(supershare)
+
+}
+
+
+onbeforeunload = function(){
+  window.opener.console.log('about to die!!! evaculate!');
+  window.opener.evacuate();
+}
+</script>
