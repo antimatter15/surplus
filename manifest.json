@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Add browser button for Google+",
   "background_page": "background.html",
   "browser_action": {
@@ -16,6 +16,13 @@
     }
   ],
   "permissions": [
-    "http://blogsearch.google.com/"
-  ]
+    "http://blogsearch.google.com/?extension=surplus"
+  ],
+  "icons": {
+    "16": "img/16.png",
+    "32": "img/32.png",
+    "48": "img/48.png",
+    "64": "img/64.png",
+    "128": "img/128.png"
+  }
 }
