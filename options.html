@@ -19,6 +19,9 @@
     <p>
 		  <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable Desktop Notifications</label>
 		</p>
+    <p>
+		  <input type="number" value=0 min=1 max=999 id="dismiss" style="width: 50px" oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications Auto Dismiss time in seconds (doesn't do anything if desktop notifications are disabled.)</label> 
+		</p>
     <p> 
       <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Authenticated User (for multiple simulatenous account logins. If you are unsure, just select 0.)</label> 
     </p> 
@@ -28,6 +31,7 @@
 		
 		<script>
 		  document.getElementById('moar').value = localStorage.auth_user;
+		  document.getElementById('dismiss').value = localStorage.dismiss || 5;
 		  document.getElementById('notif').checked = localStorage.notify == 'yes';
 		  
 		  function change_user(val){

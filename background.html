@@ -77,7 +77,8 @@
           if(global_port_src == port.name){
             global_notifications_port = port;
             port.onMessage.addListener(function(msg){
-              showNotifications(msg);
+              //showNotifications(msg);
+              showqueue = showqueue.concat(msg);
             })
           }
         }else setTimeout(poll, 500);
@@ -85,18 +86,16 @@
       poll();
     }
   });
-  
-  function showNotifications(messages){
-    //TODO: stagger the display of notifications
-    messages.forEach(function(msg){
-      var notification = webkitNotifications.createNotification(
-        msg[1],
-        'Surplus Google+ Notification',
-        msg[0]
-      );
-      notification.show();
-    })
-  }
+  var showqueue = [];
+  setInterval(function(){
+    var msg = showqueue.shift();
+    var notification = webkitNotifications.createNotification(
+      msg[1],
+      'Google+ Notification',
+      msg[0]
+    );
+    notification.show();
+  }, 5000); //seems like a good duration
   
   setInterval(function(){
     if(login_error) location.reload();
