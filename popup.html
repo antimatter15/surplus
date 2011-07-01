@@ -5,8 +5,12 @@ var bg = chrome.extension.getBackgroundPage();
 var frame = bg.document.getElementById('frame');
 
 if(!frame || bg.login_error){
-  document.getElementById('reload').innerText = bg.login_error + " (Auth User "+localStorage.auth_user+")";
-  //chrome.extension.getBackgroundPage().location.reload();
+  if(!bg.login_error){
+    document.getElementById('reload').innerText = "Document is missing. Please try again in a few seconds."
+    chrome.extension.getBackgroundPage().location.reload();
+  }else{
+    document.getElementById('reload').innerText = bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
+  }
   document.getElementById('reload').style.display = '';
 }else{
   document.adoptNode(frame);

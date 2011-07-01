@@ -12,6 +12,8 @@
   var heightstate = false;
   var login_error = false;
   var visible = false;
+  var current_user = '';
+  
   function evacuate(){
     global_port.postMessage({})
     console.log('restoring window')
@@ -45,6 +47,7 @@
     if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
       global_port = port;
       port.onMessage.addListener(function(msg){
+        current_user = msg.user;
         if(msg.error){
           login_error = msg.error;
           drawIcon("!!");
