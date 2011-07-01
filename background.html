@@ -7,7 +7,7 @@
 </style>
 <script>
   var frame = document.getElementById('frame');
-  frame.src = "http://video.google.com/?extension=surplus&authuser="+localStorage.auth_user;
+  frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
   
   var heightstate = false;
   var login_error = false;
@@ -40,6 +40,7 @@
       chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
     }
   }
+  var connect_times = 0;
   chrome.extension.onConnect.addListener(function(port) {
     if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
       global_port = port;
@@ -50,23 +51,7 @@
         }else{
           drawIcon(msg.num);
           global_port_src = msg.src;
-          if(msg.num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
-            //now time for notifications stuff!
-            console.log('trying to display notifications');
-            var is_changed = false;
-            if(!visible){
-              console.log('opening popup');
-              open_popup();
-              is_changed = true;
-            }
-            setTimeout(function(){
-              console.log('requesting notifications');
-              global_notifications_port.postMessage({num: parseInt(msg.num)})
-              setTimeout(function(){
-                if(is_changed) open_popup();
-              }, 500);
-            }, 2000);
-          }
+          if(connect_times++ % 10 == 0) getNotifications(msg);
         }
       })
     }else{ // if(port.name == 'wheatley'){
@@ -77,7 +62,6 @@
           if(global_port_src == port.name){
             global_notifications_port = port;
             port.onMessage.addListener(function(msg){
-              //showNotifications(msg);
               showqueue = showqueue.concat(msg);
             })
           }
@@ -86,16 +70,44 @@
       poll();
     }
   });
+  
+  function getNotifications(msg){
+    if(msg.num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
+      //now time for notifications stuff!
+      console.log('trying to display notifications');
+      var is_changed = false;
+      if(!visible){
+        console.log('opening popup');
+        open_popup();
+        is_changed = true;
+      }
+      setTimeout(function(){
+        console.log('requesting notifications');
+        global_notifications_port.postMessage({num: parseInt(msg.num)})
+        setTimeout(function(){
+          if(is_changed){
+            open_popup();
+            console.log('closing popup');
+          }
+        }, 500);
+      }, 1000);
+    }
+  }
   var showqueue = [];
   setInterval(function(){
     var msg = showqueue.shift();
-    var notification = webkitNotifications.createNotification(
-      msg[1],
-      'Google+ Notification',
-      msg[0]
-    );
-    notification.show();
-  }, 5000); //seems like a good duration
+    if(msg){
+      var notification = webkitNotifications.createNotification(msg[1], 'Google+ Notification', msg[0]);
+      notification.show();
+      notification.onclick = function(){
+        chrome.tabs.create({url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all'})
+      }
+      setTimeout(function(){
+        notification.cancel();
+      }, parseInt(localStorage.autodismiss || 5) * 1000);
+    }
+  }, 6000); //seems like a good duration
+  
   
   setInterval(function(){
     if(login_error) location.reload();
