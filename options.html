@@ -1,0 +1,44 @@
+
+<!doctype html> 
+<html> 
+  <head> 
+    <title>Surplus Settings</title> 
+    <style> 
+      body {
+        font-family: sans-serif, helvetica, arial;
+        margin-right: 50px;
+        margin-left: 120px;
+        background: url(img/64.png) no-repeat;
+        background-position: 30px 30px;
+      }
+    </style> 
+ 
+  </head> 
+  <body> 
+    <h2 id="progress">Surplus Settings</h2> 
+    <p>
+		  <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable Desktop Notifications</label>
+		</p>
+    <p> 
+      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Authenticated User (for multiple simulatenous account logins. If you are unsure, just select 0.)</label> 
+    </p> 
+    <p>
+      <input type="button" value="Reload Background Page" onclick="chrome.extension.getBackgroundPage().location.reload();"> 
+    </p>
+		
+		<script>
+		  document.getElementById('moar').value = localStorage.auth_user;
+		  document.getElementById('notif').checked = localStorage.notify == 'yes';
+		  
+		  function change_user(val){
+		    localStorage.auth_user = val;
+		    chrome.extension.getBackgroundPage().location.reload();
+		  }
+		</script>
+    <hr> 
+    <div style="font-size: small"> 
+      Part of the <a href="https://github.com/antimatter15/surplus">Surplus project</a>. Written by <a href="http://twitter.com/antimatter15">@antimatter15</a> (please follow me on twitter and on <a href="https://plus.google.com/116347431032639424492/posts?hl=en&tab=bh">Google+</a>). Email comments and concerns to <a href="mailto:antimatter15@gmail.com">antimatter15@gmail.com</a>.
+    </div> 
+ 
+  </body> 
+</html> 
