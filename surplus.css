@@ -1,8 +1,13 @@
 body {
   overflow: hidden !important;
+  height: 500px !important;
+  width: 440px !important;
   background-color: white !important;
 }
 
+#nw-extension {
+  display: none !important;
+}
 
 #gbg, #gbwc {
   top: 0 !important;
@@ -19,14 +24,25 @@ body {
   top: 22px !important;
   left: 0 !important;
   background-color: white !important;
-  z-index: 999999999999 !important;
+  z-index: 999999999 !important;
 }
 
-center {
+.div-footer, center {
   display: none !important;
 }
 
 #gbx3, #gbx4 {
   background-color: white !important;
   border: none !important;
+}
+
+.surplus_message {
+  font-size: xx-large;
+  font-weight: bold;
+  font-family: arial, sans-serif;
+  color: #993333;
+  position: absolute;
+  z-index: 99999999999;
+  top: 100px;
+  left: 20px;
 }

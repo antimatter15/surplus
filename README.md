@@ -33,3 +33,7 @@ As for the name, in the twelve seconds between when I knew I was going to start 
 
 * Account Switching Support (yes, I actually have multiple accounts but it never occurred to me because my first one is the one I use with google+)
 * There's this really annoying problem with scrolling dying every so often. Argh.
+
+
+## Notes
+* As of 11:49am June 31, it no longer uses Google Blog Search, but rather Google Video instead, because Blog Search was neglected more than I like, especially with multi-user stuff.

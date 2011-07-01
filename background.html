@@ -1,13 +1,22 @@
-<iframe src="http://blogsearch.google.com/?extension=surplus" style="width:440px;height:500px" id="frame"></iframe>
+<iframe id="frame"></iframe>
+<style>
+  iframe {
+    width: 440px;
+    height: 300px;
+  }
+</style>
 <script>
   var frame = document.getElementById('frame');
-
+  frame.src = "http://video.google.com/?extension=surplus&authuser=1";
+  
+  var heightstate = false;
+  var login_error = false;
+  
   function evacuate(){
     global_port.postMessage({})
     console.log('restoring window')
-    document.adoptNode(frame)
-    document.body.appendChild(frame)
-    console.log('done restore');
+    document.adoptNode(frame);
+    document.body.appendChild(frame);
   }
   var global_port;
   function open_popup(){
@@ -16,25 +25,26 @@
   
   function drawIcon(num){
     var c = document.createElement('canvas').getContext('2d');
+    console.log(num);
+    var none = (num.replace(/[\s0]/g,'') == '');
     var img = new Image();
-    if(num == 0){
-      img.src = 'img/old.png'
-    }else{
-      img.src = 'img/new.png'
-    }
+    img.src = none ? 'img/old.png' : 'img/new.png';
     img.onload = function(){
       c.drawImage(img, 0, 0);
       c.font = "bold 13px arial,sans-serif";
-      c.fillStyle = num == 0 ? '#AAA' : '#fff';
+      c.fillStyle = none ? '#AAA' : '#fff';
       c.fillText(num+'', 6, 14);
       chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
     }
   }
   chrome.extension.onConnect.addListener(function(port) {
     global_port = port;
-  })
-  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    var num = parseInt(request.num);
-    if(!isNaN(num)) drawIcon(num);
+    port.onMessage.addListener(function(msg){
+      if(msg.error){
+        login_error = msg.error;
+      }else{
+        drawIcon(msg.num);
+      }
+    })
   })
 </script>
