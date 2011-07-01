@@ -9,7 +9,6 @@ function toggle(){
   document.getElementById('gbg1').dispatchEvent(mouse());
 }
 
-
 var port = chrome.extension.connect({name: "chell"});
 
 port.onMessage.addListener(function(msg){
@@ -23,13 +22,16 @@ document.body.appendChild(div);
 
 setInterval(function(){
   var el = document.getElementById('gbi1')
+  var uid = document.getElementById('gbi4');
+  var frame = document.querySelector('#gbwc iframe');
   if(!el){
-    var uid = document.getElementById('gbi4');
-    if(uid) port.postMessage({error: 'User '+uid.innerText+' does not have Google+'});
+    if(uid) port.postMessage({error: 'User '+uid.innerText+' does not have Google+', user: uid.innerText});
     else port.postMessage({error: 'Please sign into Google first'});
   }else{
-    port.postMessage({num: el.innerText})
+    port.postMessage({num: el.innerText, user: uid.innerText, src: frame?frame.src:''})
   }
+  
+  scrollTo(0,0);
 }, 1000)
 
 var head = document.getElementsByTagName('head')[0], style = document.createElement('link');

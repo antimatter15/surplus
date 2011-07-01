@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "1.0.1",
+  "version": "2.0",
   "description": "Integrates Google+ Notifications and Google Chrome.",
   "background_page": "background.html",
   "icons": {
@@ -10,6 +10,7 @@
     "64": "img/64.png",
     "128": "img/128.png"
   },
+  "options_page": "options.html",
   "browser_action": {
     "default_icon": "img/old.png",
     "default_title": "Google+ Notifications",
@@ -20,9 +21,16 @@
       "matches": ["http://video.google.com/?extension=surplus*"],
       "js": ["surplus.js"],
       "all_frames": true
+    },
+    {
+      "matches": ["https://plus.google.com/u/*/_/notifications/frame*"],
+      "js": ["notification.js"],
+      "all_frames": true
     }
   ],
   "permissions": [
-    "http://video.google.com/?extension=surplus"
+    "http://video.google.com/?extension=surplus",
+    "https://plus.google.com",
+    "notifications"
   ]
 }

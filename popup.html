@@ -5,8 +5,8 @@ var bg = chrome.extension.getBackgroundPage();
 var frame = bg.document.getElementById('frame');
 
 if(!frame || bg.login_error){
-  document.getElementById('reload').innerText = bg.login_error;
-  chrome.extension.getBackgroundPage().location.reload();
+  document.getElementById('reload').innerText = bg.login_error + " (Auth User "+localStorage.auth_user+")";
+  //chrome.extension.getBackgroundPage().location.reload();
   document.getElementById('reload').style.display = '';
 }else{
   document.adoptNode(frame);
@@ -26,6 +26,12 @@ if(!frame || bg.login_error){
 * {
   border: 0;
   margin: 0;
+}
+
+#reload {
+  font: bold 24px arial, sans-serif;
+  color: #605E5E;
+  padding: 20px;
 }
 
 body {

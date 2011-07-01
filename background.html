@@ -7,11 +7,11 @@
 </style>
 <script>
   var frame = document.getElementById('frame');
-  frame.src = "http://video.google.com/?extension=surplus&authuser=1";
+  frame.src = "http://video.google.com/?extension=surplus&authuser="+localStorage.auth_user;
   
   var heightstate = false;
   var login_error = false;
-  
+  var visible = false;
   function evacuate(){
     global_port.postMessage({})
     console.log('restoring window')
@@ -19,13 +19,16 @@
     document.body.appendChild(frame);
   }
   var global_port;
+  var global_port_src = '';
+  var global_notifications_port;
+  
   function open_popup(){
-    global_port.postMessage({})
+    global_port.postMessage({action: 'toggle'});
+    visible = !visible;
   }
   
   function drawIcon(num){
     var c = document.createElement('canvas').getContext('2d');
-    console.log(num);
     var none = (num.replace(/[\s0]/g,'') == '');
     var img = new Image();
     img.src = none ? 'img/old.png' : 'img/new.png';
@@ -38,13 +41,64 @@
     }
   }
   chrome.extension.onConnect.addListener(function(port) {
-    global_port = port;
-    port.onMessage.addListener(function(msg){
-      if(msg.error){
-        login_error = msg.error;
-      }else{
-        drawIcon(msg.num);
+    if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
+      global_port = port;
+      port.onMessage.addListener(function(msg){
+        if(msg.error){
+          login_error = msg.error;
+          drawIcon("!!");
+        }else{
+          drawIcon(msg.num);
+          global_port_src = msg.src;
+          if(msg.num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
+            //now time for notifications stuff!
+            console.log('trying to display notifications');
+            var is_changed = false;
+            if(!visible){
+              console.log('opening popup');
+              open_popup();
+              is_changed = true;
+            }
+            setTimeout(function(){
+              console.log('requesting notifications');
+              global_notifications_port.postMessage({num: parseInt(msg.num)})
+              setTimeout(function(){
+                if(is_changed) open_popup();
+              }, 500);
+            }, 2000);
+          }
+        }
+      })
+    }else{ // if(port.name == 'wheatley'){
+      console.log('recieved potential wheatley');
+      function poll(){
+        if(global_port_src){
+          console.log('found global port source', global_port_src, port.name);
+          if(global_port_src == port.name){
+            global_notifications_port = port;
+            port.onMessage.addListener(function(msg){
+              showNotifications(msg);
+            })
+          }
+        }else setTimeout(poll, 500);
       }
+      poll();
+    }
+  });
+  
+  function showNotifications(messages){
+    //TODO: stagger the display of notifications
+    messages.forEach(function(msg){
+      var notification = webkitNotifications.createNotification(
+        msg[1],
+        'Surplus Google+ Notification',
+        msg[0]
+      );
+      notification.show();
     })
-  })
+  }
+  
+  setInterval(function(){
+    if(login_error) location.reload();
+  }, 15000);
 </script>
