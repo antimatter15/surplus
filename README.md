@@ -1,4 +1,4 @@
-== Surplus == 
+# Surplus
 
 It's actually surprisingly interesting how this works.
 
@@ -14,11 +14,11 @@ Then the popup does something pretty interesting. It runs adoptNode, which is pa
 
 When the popup is closed, that is, when the unload event is fired, it sends the frame back to the background page.
 
-== Name ==
+## Name
 
 As for the name, in the twelve seconds between when I knew I was going to start the project and was going to start coding, I had to answer what was probably the hardest problem of any project: finding a name. I figured why not do a cat /usr/share/dict/words | grep plus, just because I heard a cool pun about Google+ yesterday. There were basically three words, nonplus, plush and surplus. Plush is cute because I kept thinking of my giant stuffed pikachu that I got when I was six, but the connection between plush and plus is pretty abstract. Nonplus means, literally "confused", and that's not something any interaction designer would want. Surplus is nice, because it has this mythical fairy tale property (US government having a surplus?) and that's a nice (warm and cuddly like a pikachu) connotation. So thereafter, a project was named.
 
-== Timeline (June 30, 2011 EST) ==
+## Timeline (June 30, 2011 EST)
 
 * 4:14pm Started project 
 * 4:21pm Icon work
@@ -29,7 +29,7 @@ As for the name, in the twelve seconds between when I knew I was going to start 
 * 6:13pm Done
 * 7:18pm Updating Readme
 
-== TODO: ==
+## TODO:
 
 * Account Switching Support (yes, I actually have multiple accounts but it never occurred to me because my first one is the one I use with google+)
 * There's this really annoying problem with scrolling dying every so often. Argh.
