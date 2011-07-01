@@ -12,21 +12,21 @@ Then the popup does something pretty interesting. It runs adoptNode, which is pa
 
 When the popup is closed, that is, when the unload event is fired, it sends the frame back to the background page.
 
+As for the name, in the twelve seconds between when I knew I was going to start the project and was going to start coding, I had to answer what was probably the hardest problem of any project: finding a name. I figured why not do a cat /usr/share/dict/words | grep plus, just because I heard a cool pun about Google+ yesterday. There were basically three words, nonplus, plush and surplus. Plush is cute because I kept thinking of my giant stuffed pikachu that I got when I was six, but the connection between plush and plus is pretty abstract. Nonplus means, literally "confused", and that's not something any interaction designer would want. Surplus is nice, because it has this mythical fairy tale property (US government having a surplus?) and that's a nice (warm and cuddly like a pikachu) connotation. So thereafter, a project was named.
 
 Timeline (June 30, 2011 EST)
 
 Started project 4:14 PM
 
-4:21 Icon work
+* 4:21 Icon work
+* 4:24 Manifestation
+* 4:36 Content Scripts on hidden frames argh
+* 4:59 Done with styling
+* 5:22 Perfected popup interaction
+* 6:13 Done
+* 7:18 Updating Readme
 
-4:24 Manifestation
+TODO:
 
-4:36 Content Scripts on hidden frames argh
-
-4:59 Done with styling
-
-5:22 Perfected popup interaction
-
-6:13 Done
-
-7:18 Updating Readme
+* Account Switching Support (yes, I actually have multiple accounts but it never occurred to me because my first one is the one I use with google+)
+* There's this really annoying problem with scrolling dying every so often. Argh.
