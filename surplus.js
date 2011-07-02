@@ -32,7 +32,7 @@ setInterval(function(){
   }
   
   scrollTo(0,0);
-}, 300)
+}, 1000)
 
 var head = document.getElementsByTagName('head')[0], style = document.createElement('link');
 style.type = 'text/css';

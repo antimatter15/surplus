@@ -27,9 +27,25 @@
   function open_popup(){
     global_port.postMessage({action: 'toggle'});
     visible = !visible;
+    setTimeout(manualUpdate, 1000);
   }
   
+  function manualUpdate(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('get','https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc',true);
+    xhr.send();
+    xhr.onload = function(){
+      var num = JSON.parse(xhr.responseText.substr(4))[1];
+      drawIcon(num);
+      getNotifications(num);
+      console.log('Got Notifications',num);
+    }
+  }
+  
+  setInterval(manualUpdate, 20 * 1000);
+  
   function drawIcon(num){
+    num += '';
     var c = document.createElement('canvas').getContext('2d');
     var none = (num.replace(/[\s0]/g,'') == '');
     var img = new Image();
@@ -43,6 +59,10 @@
     }
   }
   var connect_times = 0;
+  
+  var last_recorded_number = -1;
+  var last_recorded_time = 0;
+  
   chrome.extension.onConnect.addListener(function(port) {
     if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
       global_port = port;
@@ -52,9 +72,12 @@
           login_error = msg.error;
           drawIcon("!!");
         }else{
-          drawIcon(msg.num);
           global_port_src = msg.src;
-          if(connect_times++ % 10 == 0) getNotifications(msg);
+          if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 3000){
+            manualUpdate();
+          }
+          last_recorded_time = +new Date;
+          last_recorded_number = msg.num;
         }
       })
     }else{ // if(port.name == 'wheatley'){
@@ -74,8 +97,9 @@
     }
   });
   
-  function getNotifications(msg){
-    if(msg.num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
+  function getNotifications(num){
+    num += '';
+    if(num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
       //now time for notifications stuff!
       console.log('trying to display notifications');
       var is_changed = false;
@@ -86,7 +110,7 @@
       }
       setTimeout(function(){
         console.log('requesting notifications');
-        global_notifications_port.postMessage({num: parseInt(msg.num)})
+        global_notifications_port.postMessage({num: parseInt(num)})
         setTimeout(function(){
           if(is_changed){
             open_popup();

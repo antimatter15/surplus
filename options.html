@@ -30,7 +30,7 @@
     </p>
 		
 		<script>
-		  document.getElementById('moar').value = localStorage.auth_user;
+		  document.getElementById('moar').value = localStorage.auth_user || 0;
 		  document.getElementById('dismiss').value = localStorage.dismiss || 5;
 		  document.getElementById('notif').checked = localStorage.notify == 'yes';
 		  
