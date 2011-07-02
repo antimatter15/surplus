@@ -31,16 +31,16 @@
   }
   
   function manualUpdate(){
-    var xhr = new XMLHttpRequest();
-    xhr.open('get','https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc',true);
-    xhr.send();
-    xhr.onload = function(){
-      var num = JSON.parse(xhr.responseText.substr(4))[1];
-      drawIcon(num);
-      getNotifications(num);
-      console.log('Got Notifications',num);
-    }
+		if(global_notifications_port)
+			global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
   }
+
+	function handleCount(text){
+    var num = JSON.parse(text.substr(4))[1];
+    drawIcon(num);
+    getNotifications(num);
+    console.log('Got Notifications',num);		
+	}
   
   setInterval(manualUpdate, 20 * 1000);
   
@@ -88,7 +88,11 @@
           if(global_port_src == port.name){
             global_notifications_port = port;
             port.onMessage.addListener(function(msg){
-              showqueue = showqueue.concat(msg);
+							if(msg.action == 'notifications')
+              	showqueue = showqueue.concat(msg.messages);
+							else if(msg.action == 'xhr'){
+								handleCount(msg.response)
+							}
             })
           }
         }else setTimeout(poll, 500);
@@ -110,7 +114,7 @@
       }
       setTimeout(function(){
         console.log('requesting notifications');
-        global_notifications_port.postMessage({num: parseInt(num)})
+        global_notifications_port.postMessage({action: 'notifications', num: parseInt(num)})
         setTimeout(function(){
           if(is_changed){
             open_popup();

@@ -3,27 +3,35 @@
 <script>
 var bg = chrome.extension.getBackgroundPage();
 var frame = bg.document.getElementById('frame');
+var numTries = 0;
+function attemptLoad(){
+	numTries++;
+	if(!frame || bg.login_error){
+	  if(!bg.login_error){
+			if(numTries < 3) return setTimeout(attemptLoad, 500);
+	    document.getElementById('reload').innerText = "Document is missing. Please try again in a few seconds."
+	    chrome.extension.getBackgroundPage().location.reload();
+			
+	  }else{
+	    document.getElementById('reload').innerText = bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
+	  }
+	  document.getElementById('reload').style.display = '';
+	}else{
+	  document.adoptNode(frame);
+	  document.body.appendChild(frame);
 
-if(!frame || bg.login_error){
-  if(!bg.login_error){
-    document.getElementById('reload').innerText = "Document is missing. Please try again in a few seconds."
-    chrome.extension.getBackgroundPage().location.reload();
-  }else{
-    document.getElementById('reload').innerText = bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
-  }
-  document.getElementById('reload').style.display = '';
-}else{
-  document.adoptNode(frame);
-  document.body.appendChild(frame);
+	  //this is a fairly hacky hack that should fix scrolling issues
+	  bg.heightstate = !bg.heightstate;
+	  frame.style.height = bg.heightstate ? '499px':'500px'; //hopefully users dont notice 1px diffs
 
-  //this is a fairly hacky hack that should fix scrolling issues
-  bg.heightstate = !bg.heightstate;
-  frame.style.height = bg.heightstate ? '499px':'500px'; //hopefully users dont notice 1px diffs
-
-  bg.open_popup()
-
-  onunload = function(){ bg.evacuate() }
+	  bg.open_popup()
+		
+		onunload = function(){ bg.evacuate() }
+	}
 }
+
+attemptLoad();
+
 </script>
 
 <style>
