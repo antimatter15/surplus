@@ -1,14 +1,15 @@
 <body>
 <div id="reload" style="display: none"></div>
 <script>
-var bg = chrome.extension.getBackgroundPage();
-var frame = bg.document.getElementById('frame');
+
 var numTries = 0;
 function attemptLoad(){
+	bg = chrome.extension.getBackgroundPage();
+	frame = bg.document.getElementById('frame');
 	numTries++;
 	if(!frame || bg.login_error){
 	  if(!bg.login_error){
-			if(numTries < 3) return setTimeout(attemptLoad, 500);
+			if(numTries < 15) return setTimeout(attemptLoad, 100);
 	    document.getElementById('reload').innerText = "Document is missing. Please try again in a few seconds."
 	    chrome.extension.getBackgroundPage().location.reload();
 			
@@ -24,7 +25,7 @@ function attemptLoad(){
 	  bg.heightstate = !bg.heightstate;
 	  frame.style.height = bg.heightstate ? '499px':'500px'; //hopefully users dont notice 1px diffs
 
-	  bg.open_popup()
+	  bg.ensure_open()
 		
 		onunload = function(){ bg.evacuate() }
 	}

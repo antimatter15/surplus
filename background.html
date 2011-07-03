@@ -15,7 +15,7 @@
   var current_user = '';
   
   function evacuate(){
-    global_port.postMessage({})
+    ensure_closed();
     console.log('restoring window')
     document.adoptNode(frame);
     document.body.appendChild(frame);
@@ -25,14 +25,26 @@
   var global_notifications_port;
   
   function open_popup(){
-    global_port.postMessage({action: 'toggle'});
+    global_port.postMessage({action: 'notification'});
     visible = !visible;
     setTimeout(manualUpdate, 1000);
   }
+
+	function ensure_open(){
+		if(!visible) open_popup();
+	}
   
+	function ensure_closed(){
+		if(visible) open_popup();
+	}
+
   function manualUpdate(){
 		if(global_notifications_port)
 			global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
+		else if(parseInt(last_recorded_number) > -1){
+			console.log("nawt yedt")
+			drawIcon(last_recorded_number);
+		}
   }
 
 	function handleCount(text){
@@ -73,11 +85,11 @@
           drawIcon("!!");
         }else{
           global_port_src = msg.src;
-          if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 3000){
-            manualUpdate();
+          if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
+            setTimeout(manualUpdate, 100);
+	          last_recorded_time = +new Date;
+	          last_recorded_number = msg.num;
           }
-          last_recorded_time = +new Date;
-          last_recorded_number = msg.num;
         }
       })
     }else{ // if(port.name == 'wheatley'){

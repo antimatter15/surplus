@@ -5,14 +5,23 @@ function mouse(name){
   evt.initMouseEvent(name ? ('mouse'+name) : 'click', true, true, window, 0, 0, 0, 1, 1, false, false, false, false, 0, null);
   return evt;
 }
+
 function toggle(){
   document.getElementById('gbg1').dispatchEvent(mouse());
+}
+
+function toggleShare(){
+  document.getElementById('gbg3').dispatchEvent(mouse());
 }
 
 var port = chrome.extension.connect({name: "chell"});
 
 port.onMessage.addListener(function(msg){
-  toggle();
+  if(msg.action == "notification"){
+    toggle();
+  }else if(msg.action == 'share'){
+    toggleShare()
+  }
 })
 
 var div = document.createElement('div');
@@ -25,7 +34,7 @@ setInterval(function(){
   var uid = document.getElementById('gbi4');
   var frame = document.querySelector('#gbwc iframe');
   if(!el){
-    if(uid) port.postMessage({error: 'User '+uid.innerText+' does not have Google+', user: uid.innerText});
+    if(uid) port.postMessage({error: 'User '+uid.innerText+' does not have Google+ or is not logged into Google+. Please login to plus.google.com before proceeding.', user: uid.innerText});
     else port.postMessage({error: 'Please sign into Google first'});
   }else{
     port.postMessage({num: el.innerText, user: uid.innerText, src: frame?frame.src:''})
