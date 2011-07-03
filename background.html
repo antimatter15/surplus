@@ -26,6 +26,8 @@
   
   function open_popup(){
     global_port.postMessage({action: 'notification'});
+	  frame.style.height = (500 + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
+
     visible = !visible;
     setTimeout(manualUpdate, 1000);
   }
