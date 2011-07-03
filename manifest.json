@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Integrates Google+ Notifications and Google Chrome.",
   "background_page": "background.html",
   "icons": {
