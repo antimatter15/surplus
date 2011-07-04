@@ -12,7 +12,9 @@
   var heightstate = 0;
   var login_error = false;
   var visible = false;
-  var current_user = '';
+  var share_visible = false;
+	var current_user = '';
+	var current_height = ''
   
   function evacuate(){
     ensure_closed();
@@ -27,10 +29,16 @@
   function open_popup(){
     global_port.postMessage({action: 'notification'});
 	  frame.style.height = (500 + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
-
+		share_visible = false;
     visible = !visible;
     setTimeout(manualUpdate, 1000);
   }
+
+	function open_share(){
+		ensure_closed();
+		share_visible = true;
+		global_port.postMessage({action: 'share'});
+	}
 
 	function ensure_open(){
 		if(!visible) open_popup();
@@ -40,12 +48,21 @@
 		if(visible) open_popup();
 	}
 
+	var last_updated_time = 0;
+	var update_queued = false;
   function manualUpdate(){
-		if(global_notifications_port)
-			global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
-		else if(parseInt(last_recorded_number) > -1){
-			console.log("nawt yedt")
-			drawIcon(last_recorded_number);
+		if(new Date - last_updated_time > 3000){
+			if(global_notifications_port)
+				global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
+			else if(parseInt(last_recorded_number) > -1){
+				console.log("nawt yedt")
+				drawIcon(last_recorded_number);
+			}
+			last_updated_time  = +new Date;
+			update_queued = false;
+		}else if(update_queued == false){
+			update_queued = true;
+			setTimeout(manualUpdate, 4000);
 		}
   }
 
@@ -56,7 +73,7 @@
     console.log('Got Notifications',num);		
 	}
   
-  setInterval(manualUpdate, 20 * 1000);
+  setInterval(function(){manualUpdate()}, 20 * 1000);
   
   function drawIcon(num){
     num += '';
@@ -82,6 +99,7 @@
       global_port = port;
       port.onMessage.addListener(function(msg){
         current_user = msg.user;
+				current_height = msg.height;
         if(msg.error){
           login_error = msg.error;
           drawIcon("!!");
@@ -95,17 +113,20 @@
         }
       })
     }else{ // if(port.name == 'wheatley'){
-      console.log('recieved potential wheatley');
+      //console.log('recieved potential wheatley');
       function poll(){
         if(global_port_src){
           console.log('found global port source', global_port_src, port.name);
           if(global_port_src == port.name){
             global_notifications_port = port;
+						port.postMessage({action: 'accept', user: current_user});
             port.onMessage.addListener(function(msg){
 							if(msg.action == 'notifications')
               	showqueue = showqueue.concat(msg.messages);
 							else if(msg.action == 'xhr'){
 								handleCount(msg.response)
+							}else if(msg.action == 'share'){
+								open_share();
 							}
             })
           }
@@ -134,15 +155,18 @@
             open_popup();
             console.log('closing popup');
           }
-        }, 500);
-      }, 1000);
+        }, 100);
+      }, 100);
     }
   }
   var showqueue = [];
   setInterval(function(){
     var msg = showqueue.shift();
     if(msg){
-      var notification = webkitNotifications.createNotification(msg[1], 'Google+ Notification', msg[0]);
+			window.notify_message = msg[0];
+			window.notify_image = msg[1];
+      var notification = window.webkitNotifications.createHTMLNotification('notification.html');;
+
       notification.show();
       notification.onclick = function(){
         chrome.tabs.create({url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all'})
