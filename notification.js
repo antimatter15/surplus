@@ -1,4 +1,5 @@
 var port = chrome.extension.connect({name: location.href});
+var sharevisible = false;
 
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
@@ -14,6 +15,8 @@ port.onMessage.addListener(function(msg){
       port.postMessage({action: 'xhr', response: xhr.responseText})
     }
     xhr.send();
+  }else if(msg.action == "sharevisible"){
+    sharevisible = msg.value;
   }else if(msg.action == 'accept'){
     console.log('Recieved acceptance letter.');
     var div = document.querySelector("a[href$='/notifications/all']")
@@ -24,6 +27,13 @@ port.onMessage.addListener(function(msg){
     document.getElementById('sharebutton').onclick = function(){
       port.postMessage({action: 'share'})
     }
+    
+    setInterval(function(){
+      var views = document.querySelectorAll("#summary-view>div");
+      if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
+        port.postMessage({action: "sharevisible", value: false})
+      }
+    }, 500)
   }
   
 })

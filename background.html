@@ -29,6 +29,9 @@
     global_port.postMessage({action: 'notification'});
 	  frame.style.height = (500 + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
 		share_visible = false;
+		if(global_notifications_port){
+			global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
+		}
     visible = !visible;
     setTimeout(manualUpdate, 1000);
   }
@@ -36,6 +39,13 @@
 	function open_share(){
 		ensure_closed();
 		share_visible = true;
+		global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
+		global_port.postMessage({action: 'share'});
+	}
+	
+	function close_share(){
+		share_visible = false;
+		global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
 		global_port.postMessage({action: 'share'});
 	}
 
@@ -114,7 +124,7 @@
       //console.log('recieved potential wheatley');
       function poll(){
         if(global_port_src){
-          console.log('found global port source', global_port_src, port.name);
+          //console.log('found global port source', global_port_src, port.name);
           if(global_port_src == port.name){
             global_notifications_port = port;
 						port.postMessage({action: 'accept', user: current_user});
@@ -125,6 +135,11 @@
 								handleCount(msg.response)
 							}else if(msg.action == 'share'){
 								open_share();
+							}else if(msg.action == 'sharevisible' && msg.value == false){
+								if(share_visible){
+									close_share();
+									setTimeout(ensure_open, 100)
+								}
 							}
             })
           }
