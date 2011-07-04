@@ -14,7 +14,6 @@
   var visible = false;
   var share_visible = false;
 	var current_user = '';
-	var current_height = ''
   
   function evacuate(){
     ensure_closed();
@@ -99,7 +98,6 @@
       global_port = port;
       port.onMessage.addListener(function(msg){
         current_user = msg.user;
-				current_height = msg.height;
         if(msg.error){
           login_error = msg.error;
           drawIcon("!!");

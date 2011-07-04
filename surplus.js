@@ -33,13 +33,12 @@ setInterval(function(){
   var el = document.getElementById('gbi1')
   var uid = document.getElementById('gbi4');
   var frame = document.querySelector('#gbwc iframe');
-  var height = frame ? document.getElementById("gbwc").style.height : 0;
   
   if(!el){
-    if(uid) port.postMessage({height: height, error: 'User '+uid.innerText+' does not have Google+ or is not logged into Google+. Please login to plus.google.com before proceeding.', user: uid.innerText});
-    else port.postMessage({height: height, error: 'Please sign into Google first'});
+    if(uid) port.postMessage({error: 'User '+uid.innerText+' does not have Google+ or is not logged into Google+. Please login to plus.google.com before proceeding.', user: uid.innerText});
+    else port.postMessage({error: 'Please sign into Google first'});
   }else{
-    port.postMessage({height: height, num: el.innerText, user: uid.innerText, src: frame?frame.src:''})
+    port.postMessage({num: el.innerText, user: uid.innerText, src: frame?frame.src:''})
   }
   scrollTo(0,0)
 }, 1000)
