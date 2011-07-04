@@ -63,7 +63,7 @@
     var c = document.createElement('canvas').getContext('2d');
     var none = (num.replace(/[\s0]/g,'') == '');
     var img = new Image();
-    img.src = none ? 'img/old.png' : 'img/new.png';
+    img.src = none ? 'img/icon.png' : 'img/new.png';
     img.onload = function(){
       c.drawImage(img, 0, 0);
       c.font = "bold 13px arial,sans-serif";
@@ -158,3 +158,4 @@
     if(login_error) location.reload();
   }, 15000);
 </script>
+
