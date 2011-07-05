@@ -1,6 +1,12 @@
 var port = chrome.extension.connect({name: location.href});
 var sharevisible = false;
 
+function mouse(name){
+  var evt = document.createEvent("MouseEvents");
+  evt.initMouseEvent(name ? ('mouse'+name) : 'click', true, true, window, 0, 0, 0, 1, 1, false, false, false, false, 0, null);
+  return evt;
+}
+
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
   if(msg.action == 'notifications'){
@@ -32,6 +38,9 @@ port.onMessage.addListener(function(msg){
       var views = document.querySelectorAll("#summary-view>div");
       if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
         port.postMessage({action: "sharevisible", value: false})
+        //setTimeout(function(){
+        //  document.querySelector("span[title='Add Link']").dispatchEvent(mouse());
+        //}, 1000)
       }
     }, 500)
   }
