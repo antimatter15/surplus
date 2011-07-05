@@ -1,7 +1,7 @@
 {
   "name": "Surplus",
-  "version": "2.1.3",
-  "description": "Integrates Google+ Notifications and Google Chrome.",
+  "version": "2.2.3",
+  "description": "Google Plus Integration for Chrome.",
   "background_page": "background.html",
   "icons": {
     "16": "img/16.png",

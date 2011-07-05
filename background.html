@@ -6,6 +6,10 @@
   }
 </style>
 <script>
+	/*
+		This used to be a fairly simple bit of code, but then I added
+		stuff with very little forethought. Now it's a mess.
+	*/
   var frame = document.getElementById('frame');
   frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
   
@@ -25,9 +29,13 @@
   var global_port_src = '';
   var global_notifications_port;
   
+	function shift_frame(){
+		frame.style.height = (500 + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
+	}
+
   function open_popup(){
     global_port.postMessage({action: 'notification'});
-	  frame.style.height = (500 + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
+	  shift_frame();
 		share_visible = false;
 		if(global_notifications_port){
 			global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
@@ -38,6 +46,7 @@
 
 	function open_share(){
 		ensure_closed();
+		shift_frame()
 		share_visible = true;
 		global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
 		global_port.postMessage({action: 'share'});
@@ -45,6 +54,7 @@
 	
 	function close_share(){
 		share_visible = false;
+		shift_frame()
 		global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
 		global_port.postMessage({action: 'share'});
 	}
@@ -61,12 +71,7 @@
 	var update_queued = false;
   function manualUpdate(){
 		if(new Date - last_updated_time > 3000){
-			if(global_notifications_port)
-				global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
-			else if(parseInt(last_recorded_number) > -1){
-				console.log("nawt yedt")
-				drawIcon(last_recorded_number);
-			}
+			forceUpdate();
 			last_updated_time  = +new Date;
 			update_queued = false;
 		}else if(update_queued == false){
@@ -74,6 +79,15 @@
 			setTimeout(manualUpdate, 4000);
 		}
   }
+
+	function forceUpdate(){
+		if(global_notifications_port)
+			global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
+		else if(parseInt(last_recorded_number) > -1){
+			console.log("nawt yedt")
+			drawIcon(last_recorded_number);
+		}
+	}
 
 	function handleCount(text){
     var num = JSON.parse(text.substr(4))[1];
@@ -157,7 +171,7 @@
       var is_changed = false;
       if(!visible){
         console.log('opening popup');
-        open_popup();
+        ensure_open();
         is_changed = true;
       }
       setTimeout(function(){
@@ -165,17 +179,22 @@
         global_notifications_port.postMessage({action: 'notifications', num: parseInt(num)})
         setTimeout(function(){
           if(is_changed){
-            open_popup();
+            ensure_closed();
             console.log('closing popup');
           }
         }, 100);
-      }, 100);
+      }, 1000);
     }
   }
   var showqueue = [];
-  setInterval(function(){
+	var notify_message = '', notify_image = '';
+	function showMessage(){
     var msg = showqueue.shift();
     if(msg){
+			if(msg[0] == notify_message) return showMessage(); //dont repeat messages
+			
+			if(localStorage.notify_sound == 'yes') (new Audio("notify.ogg")).play();
+			
 			window.notify_message = msg[0];
 			window.notify_image = msg[1];
       var notification = window.webkitNotifications.createHTMLNotification('notification.html');;
@@ -188,7 +207,8 @@
         notification.cancel();
       }, parseInt(localStorage.autodismiss || 5) * 1000);
     }
-  }, 6000); //seems like a good duration
+  }
+  setInterval(showMessage, 6000); //seems like a good duration
   
   
   setInterval(function(){
