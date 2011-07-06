@@ -18,7 +18,8 @@
   var visible = false;
   var share_visible = false;
   var current_user = '';
-  
+  var last_close = 0;
+
   function evacuate(){
     ensure_closed();
     console.log('restoring window')

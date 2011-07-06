@@ -2,13 +2,20 @@
 <div id="reload" style="display: none"></div>
 <script>
 
+if(false){//new Date - chrome.extension.getBackgroundPage().last_close < 0){
+  window.close();
+}else{
+  attemptLoad();
+}
+
 var numTries = 0;
 function attemptLoad(){
 	bg = chrome.extension.getBackgroundPage();
-	frame = bg.document.getElementById('frame');
+	frame = bg.frame //.document.getElementById('frame');
 	numTries++;
 	if(!frame || bg.login_error){
 	  if(!bg.login_error){
+	    document.getElementById('reload').innerText += "Loading... "
 			if(numTries < 15) return setTimeout(attemptLoad, 100);
 	    document.getElementById('reload').innerText = "Document is missing. Please try again in a few seconds."
       chrome.extension.getBackgroundPage().location.reload();
@@ -17,18 +24,17 @@ function attemptLoad(){
 	  }
 	  document.getElementById('reload').style.display = '';
 	}else{
+	  document.getElementById('reload').innerText += "Loaded."
+	  window.onunload = function(){
+			chrome.extension.getBackgroundPage().evacuate();
+			if(bg) bg.last_close = +new Date;
+		}
 	  document.adoptNode(frame);
 	  document.body.appendChild(frame);
 		bg.ensure_open()
-		window.onunload = function(){
-			chrome.extension.getBackgroundPage().evacuate();
-		}
+		
 	}
 }
-
-
-attemptLoad();
-
 </script>
 
 <style>
@@ -46,6 +52,7 @@ attemptLoad();
 body {
   width: 440px;
   height: 478px;
+  background: #c0ffee;
 }
 
 iframe {
