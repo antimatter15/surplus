@@ -38,9 +38,12 @@ port.onMessage.addListener(function(msg){
       var views = document.querySelectorAll("#summary-view>div");
       if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
         port.postMessage({action: "sharevisible", value: false})
-        //setTimeout(function(){
-        //  document.querySelector("span[title='Add Link']").dispatchEvent(mouse());
-        //}, 1000)
+        setTimeout(function(){
+          document.querySelector("span[title='Add Link']").dispatchEvent(mouse('over'));
+                    document.querySelector("span[title='Add Link']").dispatchEvent(mouse('down'));
+                              document.querySelector("span[title='Add Link']").dispatchEvent(mouse('up'));
+                                        document.querySelector("span[title='Add Link']").dispatchEvent(mouse());
+        }, 1000)
       }
     }, 500)
   }

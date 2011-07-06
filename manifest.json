@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "2.2.3",
+  "version": "3.0",
   "description": "Google Plus Integration for Chrome.",
   "background_page": "background.html",
   "icons": {
@@ -31,6 +31,7 @@
   "permissions": [
     "http://video.google.com/?extension=surplus",
     "https://plus.google.com",
+    "tabs",
     "notifications"
   ]
 }

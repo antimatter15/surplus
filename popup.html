@@ -11,7 +11,7 @@ function attemptLoad(){
 	  if(!bg.login_error){
 			if(numTries < 15) return setTimeout(attemptLoad, 100);
 	    document.getElementById('reload').innerText = "Document is missing. Please try again in a few seconds."
-	    chrome.extension.getBackgroundPage().location.reload();
+      chrome.extension.getBackgroundPage().location.reload();
 	  }else{
 	    document.getElementById('reload').innerText = bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
 	  }
@@ -20,7 +20,9 @@ function attemptLoad(){
 	  document.adoptNode(frame);
 	  document.body.appendChild(frame);
 		bg.ensure_open()
-		window.onunload = function(){ chrome.extension.getBackgroundPage().evacuate();  }
+		window.onunload = function(){
+			chrome.extension.getBackgroundPage().evacuate();
+		}
 	}
 }
 

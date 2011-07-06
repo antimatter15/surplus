@@ -17,31 +17,31 @@
   <body> 
     <h2 id="progress">Surplus Settings</h2> 
     <p>
-		  <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable desktop notifications</label>
-		</p>
-		<p>
-		  <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable desktop notification sounds</label>
-		</p>
+      <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable desktop notifications</label>
+    </p>
     <p>
-		  <input type="number" value=0 min=1 max=999 id="dismiss" style="width: 50px" oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications auto dismiss time in seconds (doesn't do anything if desktop notifications are disabled.)</label> 
-		</p>
+      <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable desktop notification sounds</label>
+    </p>
+    <p>
+      <input type="number" value=0 min=1 max=999 id="dismiss" style="width: 50px" oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications auto dismiss time in seconds (doesn't do anything if desktop notifications are disabled.)</label> 
+    </p>
     <p> 
       <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Authenticated User (for multiple simulatenous account logins. If you are unsure, just select 0.)</label> 
     </p> 
     <p>
       <input type="button" value="Reload Background Page" onclick="chrome.extension.getBackgroundPage().location.reload();"> 
     </p>
-		
-		<script>
-		  document.getElementById('moar').value = localStorage.auth_user || 0;
-		  document.getElementById('dismiss').value = localStorage.dismiss || 5;
-		  document.getElementById('notif').checked = localStorage.notify == 'yes';
-		  
-		  function change_user(val){
-		    localStorage.auth_user = val;
-		    chrome.extension.getBackgroundPage().location.reload();
-		  }
-		</script>
+    
+    <script>
+      document.getElementById('moar').value = localStorage.auth_user || 0;
+      document.getElementById('dismiss').value = localStorage.dismiss || 5;
+      document.getElementById('notif').checked = localStorage.notify == 'yes';
+      
+      function change_user(val){
+        localStorage.auth_user = val;
+        chrome.extension.getBackgroundPage().location.reload();
+      }
+    </script>
     <hr> 
     <div style="font-size: small"> 
       Part of the <a href="https://github.com/antimatter15/surplus">Surplus project</a>. Written by <a href="http://twitter.com/antimatter15">@antimatter15</a> (please follow me on twitter and on <a href="https://plus.google.com/116347431032639424492/posts?hl=en&tab=bh">Google+</a>). Email comments and concerns to <a href="mailto:antimatter15@gmail.com">antimatter15@gmail.com</a>.
