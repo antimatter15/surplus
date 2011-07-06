@@ -19,7 +19,17 @@
   var share_visible = false;
   var current_user = '';
   var last_close = 0;
-
+	
+	function start_load(){
+		//yay its been loaded!
+		if(!global_notifications_port){
+			console.log("loaded popup and notification port not found")
+			setTimeout(function(){
+				if(!global_notifications_port) location.reload();
+				
+			}, 3141)
+		}
+	}
   function evacuate(){
     ensure_closed();
     console.log('restoring window')
@@ -49,14 +59,24 @@
     ensure_closed();
     shift_frame()
     share_visible = true;
-    global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
-    global_port.postMessage({action: 'share'});
+		if(localStorage.nocurrentpage == 'yes'){
+			global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
+	    global_port.postMessage({action: 'share'});
+		}else{
+			chrome.tabs.getSelected(null, function(tab){
+				console.log("Got current tab", tab)			
+		    global_notifications_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
+		    global_port.postMessage({action: 'share'});
+			})
+		}
+		
   }
   
   function close_share(){
     share_visible = false;
     shift_frame()
     global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
+		global_notifications_port.postMessage({action: 'sharehide'})
     global_port.postMessage({action: 'share'});
   }
 

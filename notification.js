@@ -23,29 +23,45 @@ port.onMessage.addListener(function(msg){
     xhr.send();
   }else if(msg.action == "sharevisible"){
     sharevisible = msg.value;
+    if(sharevisible == true && msg.current_url){
+       setTimeout(function(){
+          document.querySelector("span[title='Add link']").dispatchEvent(mouse());
+          var evt = document.createEvent("KeyboardEvent");
+          evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
+          document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
+          document.querySelector('td>div>input[type=text]').value = msg.current_url;
+        }, 1000)
+    }
+  }else if(msg.action == "sharehide"){
+    var views = document.querySelectorAll("#summary-view>div");
+    views[0].style.visibility = 'hidden';
+    setTimeout(function(){
+      views[0].style.visibility = 'visible';
+    }, 500)
   }else if(msg.action == 'accept'){
     console.log('Recieved acceptance letter.');
     var div = document.querySelector("a[href$='/notifications/all']")
       .parentNode
       .querySelector("div");
-    div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 8px;display:inline'>Share</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+msg.user;
+    div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 8px;display:inline'>Share</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='usersettings'>"+msg.user+"</span>";
     console.log(div.innerHTML)
     document.getElementById('sharebutton').onclick = function(){
       port.postMessage({action: 'share'})
     }
-    
-    setInterval(function(){
+    document.getElementById('usersettings').onclick = function(){
+      //do something
+    }
+    function check_visible(){
       var views = document.querySelectorAll("#summary-view>div");
       if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
         port.postMessage({action: "sharevisible", value: false})
-        setTimeout(function(){
-          document.querySelector("span[title='Add Link']").dispatchEvent(mouse('over'));
-                    document.querySelector("span[title='Add Link']").dispatchEvent(mouse('down'));
-                              document.querySelector("span[title='Add Link']").dispatchEvent(mouse('up'));
-                                        document.querySelector("span[title='Add Link']").dispatchEvent(mouse());
-        }, 1000)
+       
       }
-    }, 500)
+    }
+    setInterval(check_visible, 500)
+    document.addEventListener("click", function(){
+      setTimeout(check_visible, 200);
+    }, false);
   }
   
 })
