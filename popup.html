@@ -3,7 +3,7 @@
 <script>
 var numTries = 0;
 
-if(false){//new Date - chrome.extension.getBackgroundPage().last_close < 0){
+if(new Date - chrome.extension.getBackgroundPage().last_close < 100){
   window.close();
 }else{
   attemptLoad();
