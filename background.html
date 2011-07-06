@@ -11,7 +11,7 @@
     stuff with very little forethought. Now it's a mess.
   */
   var frame = document.getElementById('frame');
-  frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
   
   var heightstate = 0;
   var login_error = false;
@@ -29,9 +29,11 @@
 				
 			}, 3141)
 		}
+		if(!share_visible) ensure_open();
+		
 	}
   function evacuate(){
-    ensure_closed();
+		if(!share_visible) ensure_closed();
     console.log('restoring window')
     document.adoptNode(frame);
     document.body.appendChild(frame);
