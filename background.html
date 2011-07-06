@@ -37,6 +37,12 @@
     console.log('restoring window')
     document.adoptNode(frame);
     document.body.appendChild(frame);
+		/*
+		chrome.browserAction.setPopup({popup:''});
+		setTimeout(function(){
+			chrome.browserAction.setPopup({popup:'popup.html'});
+		}, 1000)
+		*/
   }
   var global_port;
   var global_port_src = '';
@@ -232,8 +238,13 @@
     }
   }
   setInterval(showMessage, 6000); //seems like a good duration
-  
-  
+  /*
+	chrome.windows.create({
+	    url: url,
+	    width: width,
+	    height: height,
+	    type: 'popup'})
+*/
   setInterval(function(){
     if(login_error) location.reload();
   }, 15000);

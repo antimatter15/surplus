@@ -2,12 +2,13 @@
 <div id="reload" style="display: none"></div>
 <script>
 var numTries = 0;
-
-if(new Date - chrome.extension.getBackgroundPage().last_close < 100){
+/*
+if(new Date - chrome.extension.getBackgroundPage().last_close < 300){
   window.close();
-}else{
+  chrome.extension.getBackgroundPage().last_close = +new Date;
+}else{*/
   attemptLoad();
-}
+//}
 
 function attemptLoad(){
 	bg = chrome.extension.getBackgroundPage();
@@ -50,14 +51,14 @@ function attemptLoad(){
 
 #reload {
   font: bold 24px arial, sans-serif;
-  color: #605E5E;
+  color: #aaa;
   padding: 20px;
 }
 
 body {
   width: 440px;
   height: 478px;
-  background: #c0ffee;
+  background: #fff;
 }
 
 iframe {

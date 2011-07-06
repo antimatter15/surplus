@@ -32,8 +32,8 @@
     }
   ],
   "permissions": [
-    "http://video.google.com/?extension=surplus",
-    "https://plus.google.com",
+    "http://*.google.com/",
+    "https://*.google.com/",
     "tabs",
     "notifications"
   ]
