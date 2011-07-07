@@ -36,9 +36,11 @@ iframe {
 <div id="reload" style="display: none"></div>
 <script>
 var numTries = 0;
+window.onunload = function(){
+	chrome.extension.getBackgroundPage().last_close = +new Date;
+}
 if(new Date - chrome.extension.getBackgroundPage().last_close < 300){
   window.close();
-  chrome.extension.getBackgroundPage().last_close = +new Date;
 }else{
   attemptLoad();
 }
