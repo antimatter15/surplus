@@ -7,6 +7,8 @@ function mouse(name){
   return evt;
 }
 
+
+
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
   if(msg.action == 'notifications'){
@@ -40,6 +42,7 @@ port.onMessage.addListener(function(msg){
     }, 500)
   }else if(msg.action == 'accept'){
     console.log('Recieved acceptance letter.');
+    
     var div = document.querySelector("a[href$='/notifications/all']")
       .parentNode
       .querySelector("div");

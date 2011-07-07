@@ -194,6 +194,9 @@
   
   function getNotifications(num){
     num += '';
+
+		chrome.idle.queryState(parseInt(localStorage.idle_duration||"15") * 60, function(state){
+		if(state == 'idle') return;
     if(num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
       //now time for notifications stuff!
       console.log('trying to display notifications');
@@ -214,6 +217,7 @@
         }, 100);
       }, 1000);
     }
+})
   }
   var showqueue = [];
   var notify_message = '', notify_image = '';
@@ -247,5 +251,7 @@
 */
   setInterval(function(){
     if(login_error) location.reload();
+
+		
   }, 15000);
 </script>

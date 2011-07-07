@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "3.0",
+  "version": "3.0.1",
   "description": "Google Plus Integration for Chrome.",
   "background_page": "background.html",
   "icons": {
@@ -34,6 +34,8 @@
   "permissions": [
     "http://*.google.com/",
     "https://*.google.com/",
+		"idle",
+		"geolocation",
     "tabs",
     "notifications"
   ]

@@ -1,48 +1,9 @@
+<!doctype html>
+<html>
+<head>
+</head>
 <body>
-<div id="reload" style="display: none"></div>
-<script>
-var numTries = 0;
-/*
-if(new Date - chrome.extension.getBackgroundPage().last_close < 300){
-  window.close();
-  chrome.extension.getBackgroundPage().last_close = +new Date;
-}else{*/
-  attemptLoad();
-//}
-
-function attemptLoad(){
-	bg = chrome.extension.getBackgroundPage();
-	frame = bg.document.getElementById('frame');
-	numTries++;
-	document.getElementById('reload').style.display = '';
   
-	if(!frame || bg.login_error){
-	  if(!bg.login_error){
-	    document.getElementById('reload').innerText += "Loading ("+numTries+")... "
-			if(numTries < 15){
-			  setTimeout(attemptLoad, 100);
-			  return;
-		  }
-	    document.getElementById('reload').innerText += "Document is missing. Please try again in a few seconds."
-      chrome.extension.getBackgroundPage().location.reload();
-	  }else{
-	    document.getElementById('reload').innerText += bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
-	  }
-	  document.getElementById('reload').style.display = '';
-	}else{
-	  document.getElementById('reload').innerText += "Loaded."
-	  window.onunload = function(){
-			chrome.extension.getBackgroundPage().evacuate();
-			if(bg) bg.last_close = +new Date;
-		}
-	  document.adoptNode(frame);
-	  document.body.appendChild(frame);
-		bg.start_load();
-		
-	}
-}
-</script>
-
 <style>
 * {
   border: 0;
@@ -71,3 +32,51 @@ iframe {
   position: absolute;
 }
 </style>
+
+<div id="reload" style="display: none"></div>
+<script>
+var numTries = 0;
+if(new Date - chrome.extension.getBackgroundPage().last_close < 300){
+  window.close();
+  chrome.extension.getBackgroundPage().last_close = +new Date;
+}else{
+  attemptLoad();
+}
+
+function attemptLoad(){
+	bg = chrome.extension.getBackgroundPage();
+	frame = bg.document.getElementById('frame');
+	numTries++;
+	document.getElementById('reload').style.display = '';
+  
+	if(!frame || bg.login_error){
+	  if(!bg.login_error){
+	    document.getElementById('reload').innerText += "Loading ("+numTries+")... "
+			if(numTries < 15){
+			  setTimeout(attemptLoad, 100);
+			  return;
+		  }
+	    document.getElementById('reload').innerText += "Document is missing. Please try again in a few seconds."
+      chrome.extension.getBackgroundPage().location.reload();
+      setTimeout(function(){
+        window.close()
+      }, 1500)
+	  }else{
+	    document.getElementById('reload').innerText += bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
+	  }
+	  document.getElementById('reload').style.display = '';
+	}else{
+	  document.getElementById('reload').innerText += "Loaded."
+	  window.onunload = function(){
+			chrome.extension.getBackgroundPage().evacuate();
+			if(bg) bg.last_close = +new Date;
+		}
+	  document.adoptNode(frame);
+	  document.body.appendChild(frame);
+		bg.start_load();
+		
+	}
+}
+</script>
+</body>
+</html>

@@ -14,6 +14,7 @@ function toggleShare(){
   document.getElementById('gbg3').dispatchEvent(mouse());
 }
 
+
 var port = chrome.extension.connect({name: "chell"});
 
 port.onMessage.addListener(function(msg){
@@ -23,11 +24,6 @@ port.onMessage.addListener(function(msg){
     toggleShare()
   }
 })
-
-var div = document.createElement('div');
-div.className = 'surplus_mesage';
-div.style.display = 'none';
-document.body.appendChild(div);
 
 setInterval(function(){
   var el = document.getElementById('gbi1')
