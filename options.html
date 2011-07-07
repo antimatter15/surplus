@@ -49,6 +49,8 @@
       document.getElementById('moar').value = localStorage.auth_user || 0;
       document.getElementById('dismiss').value = localStorage.dismiss || 5;
       document.getElementById('notif').checked = localStorage.notify == 'yes';
+      document.getElementById('sounds').checked = localStorage.notify_sounds == 'yes';
+
       document.getElementById('nocurrentpage').checked = localStorage.nocurrentpage == 'yes';
 			document.getElementById('idle_duration').value = parseInt(localStorage.idle_duration || '15')
       
