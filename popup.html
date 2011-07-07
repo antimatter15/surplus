@@ -37,9 +37,9 @@ iframe {
 <script>
 var numTries = 0;
 window.onunload = function(){
-	chrome.extension.getBackgroundPage().last_close = +new Date;
+	//chrome.extension.getBackgroundPage().last_close = +new Date;
 }
-if(new Date - chrome.extension.getBackgroundPage().last_close < 300){
+if(new Date - chrome.extension.getBackgroundPage().last_close < 100){
   window.close();
 }else{
   attemptLoad();
