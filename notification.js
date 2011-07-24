@@ -25,7 +25,7 @@ port.onMessage.addListener(function(msg){
     sharevisible = msg.value;
     if(sharevisible == true && msg.current_url){
        (function(){
-          if(document.querySelector("span[title='Add link']")){
+          if(document.querySelector("span[title='Add link']").offsetHeight){
             document.querySelector("span[title='Add link']").dispatchEvent(mouse());
             var evt = document.createEvent("KeyboardEvent");
             evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
