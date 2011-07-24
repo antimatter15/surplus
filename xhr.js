@@ -41,7 +41,14 @@ script.innerHTML = ';('+(function(){
       var xhr = this;
       var cbstr = Math.random().toString(36).substr(3);
       callbacks[cbstr] = function(result){
-        if(result == true){
+        if(result == false){
+          var resp = ')]}\'\n\n[[["on.lrt",3.1153227922419E14]\n,["di",0,,,,,[]\n]\n,["e",3,,,91]\n],\'c001ed2dea7fca43\']';
+          xhr.__open("get", '', true);
+          xhr.__defineGetter__('responseText', function(){
+            return resp;
+          })
+          xhr.__send(data);
+        }else{
           xhr.__send(data);
         }
       }
