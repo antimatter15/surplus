@@ -11,8 +11,11 @@
     stuff with very little forethought. Now it's a mess.
   */
   var frame = document.getElementById('frame');
-  frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-  
+	if(localStorage.althost == 'yes'){
+		frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+	}else{
+  	frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+	}
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/settings/general?extension=surplus'
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/116347431032639424492/about'
   var heightstate = 0;
@@ -49,9 +52,10 @@
   var global_port;
   var global_port_src = '';
   var global_notifications_port;
-  
+  var baseheight = 500;
+
   function shift_frame(){
-    frame.style.height = (500 + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
+    frame.style.height = (baseheight + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
   }
 
   function open_popup(){
@@ -71,12 +75,12 @@
     share_visible = true;
 		if(localStorage.nocurrentpage == 'yes'){
 			global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
-	    global_port.postMessage({action: 'share'});
+	    global_port.postMessage({action: 'share', visible: share_visible});
 		}else{
 			chrome.tabs.getSelected(null, function(tab){
 				console.log("Got current tab", tab)			
 		    global_notifications_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
-		    global_port.postMessage({action: 'share'});
+		    global_port.postMessage({action: 'share', visible: share_visible});
 			})
 		}
 		
@@ -87,7 +91,7 @@
     shift_frame()
     global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
 		global_notifications_port.postMessage({action: 'sharehide'})
-    global_port.postMessage({action: 'share'});
+    global_port.postMessage({action: 'share', visible: share_visible});
   }
 
   function ensure_open(){
@@ -130,7 +134,7 @@
   setInterval(function(){manualUpdate()}, 20 * 1000);
   
   function drawIcon(num){
-    num += '';
+		num += '';
     var c = document.createElement('canvas').getContext('2d');
     var none = (num.replace(/[\s0]/g,'') == '');
     var img = new Image();
@@ -139,7 +143,11 @@
       c.drawImage(img, 0, 0);
       c.font = "bold 13px arial,sans-serif";
       c.fillStyle = none ? '#CCC' : '#fff';
-      c.fillText(num+'', 6, 14);
+			if(parseInt(num) > 9){
+				c.fillText('9+', 3, 14);
+			}else{
+      	c.fillText(num+'', 6, 14);
+			}
       chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
     }
   }
@@ -157,6 +165,10 @@
           login_error = msg.error;
           drawIcon("!!");
         }else{
+					if(share_visible && msg.height){
+						
+						frame.style.height = Math.max(msg.height, baseheight)+'px';
+					}
           global_port_src = msg.src;
           if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
             setTimeout(manualUpdate, 100);

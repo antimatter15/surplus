@@ -17,14 +17,16 @@
 }
 
 body {
-  width: 440px;
-  height: 478px;
+  width: 441px;
+  height: 482px;
   background: #fff;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 iframe {
   width: 440px;
-  height: 500px;
+  height: 800px;
 }
 iframe {
   top: -20px;
@@ -33,13 +35,14 @@ iframe {
 }
 </style>
 
-<div id="reload" style="display: none"></div>
+<div id="reload"></div>
 <script>
 var numTries = 0;
 window.onunload = function(){
 	//chrome.extension.getBackgroundPage().last_close = +new Date;
 }
 if(new Date - chrome.extension.getBackgroundPage().last_close < 100){
+  document.getElementById('reload').innerText += "Closing window. "
   window.close();
 }else{
   attemptLoad();
@@ -49,7 +52,7 @@ function attemptLoad(){
 	bg = chrome.extension.getBackgroundPage();
 	frame = bg.document.getElementById('frame');
 	numTries++;
-	document.getElementById('reload').style.display = '';
+	//document.getElementById('reload').style.display = '';
   
 	if(!frame || bg.login_error){
 	  if(!bg.login_error){
@@ -66,7 +69,7 @@ function attemptLoad(){
 	  }else{
 	    document.getElementById('reload').innerText += bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
 	  }
-	  document.getElementById('reload').style.display = '';
+	  //document.getElementById('reload').style.display = '';
 	}else{
 	  document.getElementById('reload').innerText += "Loaded."
 	  window.onunload = function(){

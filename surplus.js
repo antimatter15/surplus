@@ -16,12 +16,13 @@ function toggleShare(){
 
 
 var port = chrome.extension.connect({name: "chell"});
-
+var sharing = false;
 port.onMessage.addListener(function(msg){
   if(msg.action == "notification"){
     toggle();
   }else if(msg.action == 'share'){
     toggleShare()
+    sharing = msg.visible;
   }
 })
 
@@ -34,9 +35,11 @@ setInterval(function(){
     if(uid) port.postMessage({error: 'User '+uid.innerText+' does not have Google+ or is not logged into Google+. Please login to plus.google.com before proceeding.', user: uid.innerText});
     else port.postMessage({error: 'Please sign into Google first'});
   }else{
-    port.postMessage({num: el.innerText, user: uid.innerText, src: frame?frame.src:''})
+    port.postMessage({num: el.innerText, user: uid.innerText, src: frame?frame.src:'', height: frame?parseInt(document.querySelector('#gbwc').style.height):null})
   }
+
   scrollTo(0,0)
+
 }, 1000)
 
 var head = document.getElementsByTagName('head')[0], style = document.createElement('link');

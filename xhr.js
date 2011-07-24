@@ -11,12 +11,16 @@ var script = document.createElement('script');
 script.type = 'text/javascript';
 script.innerHTML = ';('+(function(){
   XMLHttpRequest.prototype.__open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.__send = XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.open = function(type, url, async){
-    console.log(type, url, async)
-    if(/updatelastreadtime/.test(url)){
+    this.__url = url;
+    this.__open(type, url, async)
+  }
+  XMLHttpRequest.prototype.send = function(data){
+    if(/updatelastreadtime/.test(this.__url)){
       
     }else{
-      this.__open(type, url, async)
+      this.__send(data)
     }
   }
 }).toString()+')();'
