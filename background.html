@@ -86,6 +86,8 @@
   function shift_frame(){
     frame.style.height = (baseheight + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
   }
+  
+  
 
   function open_popup(){
     global_port.postMessage({action: 'notification'});
@@ -152,12 +154,13 @@
       drawIcon(last_recorded_number);
     }
   }
-
+  var old_num = 0;
   function handleCount(text){
     var num = JSON.parse(text.substr(4))[1];
     drawIcon(num);
-    getNotifications(num);
-    console.log('Got Notifications',num);   
+    if(old_num < num) getNotifications(num);
+    console.log('Got Notifications',num, 'Delta='+(num-old_num));   
+    old_num = num;
   }
   
   setInterval(function(){manualUpdate()}, 20 * 1000);
@@ -173,7 +176,7 @@
       c.drawImage(img, 0, 0);
       c.font = "bold 13px arial,sans-serif";
       c.fillStyle = none ? '#CCC' : '#fff';
-			if(parseInt(num) > 9){
+			if(parseInt(num) > 9 || num == '9+'){
 				c.fillText('9+', 3, 14);
 			}else{
       	c.fillText(num+'', 6, 14);
@@ -238,32 +241,44 @@
     }
   });
   
+  var getting_notifications = false;
+  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+    console.log("Killing a updatereadtime")
+    if(getting_notifications){
+      if(localStorage.notifyread == 'yes'){
+        sendResponse(true)
+        console.log('NotifyRead is enabled')
+      }else{
+        sendResponse(false);
+        console.log("marglebalrghfve")
+      }
+    }else{
+      sendResponse(true)
+      console.log("sent response true")
+    }
+  })
   function getNotifications(num){
+    if(visible) return;
     num += '';
-
 		chrome.idle.queryState(parseInt(localStorage.idle_duration||"15") * 60, function(state){
 		if(state == 'idle') return;
     if(num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
-      //now time for notifications stuff!
-      console.log('trying to display notifications');
-      var is_changed = false;
-      if(!visible){
-        console.log('opening popup');
-        ensure_open();
-        is_changed = true;
-      }
+
+      getting_notifications = true;
+      console.log('opening popup');
+      ensure_open();
+      
       setTimeout(function(){
         console.log('requesting notifications');
         global_notifications_port.postMessage({action: 'notifications', num: parseInt(num)})
         setTimeout(function(){
-          if(is_changed){
-            ensure_closed();
-            console.log('closing popup');
-          }
+          ensure_closed();
+          console.log('closing popup');
+          getting_notifications = false;
         }, 100);
-      }, 1000);
+      }, 1000);      
     }
-})
+  })
   }
   var showqueue = [];
   var notify_message = '', notify_image = '';
@@ -296,7 +311,7 @@
 	    type: 'popup'})
 */
 	setTimeout(function(){
-		//if(!global_port) location.reload();
+		if(!global_port) location.reload();
 	}, 8000);
   setInterval(function(){
     //if(login_error) location.reload();
