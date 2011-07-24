@@ -7,8 +7,6 @@ function mouse(name){
   return evt;
 }
 
-
-
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
   if(msg.action == 'notifications'){
@@ -26,13 +24,15 @@ port.onMessage.addListener(function(msg){
   }else if(msg.action == "sharevisible"){
     sharevisible = msg.value;
     if(sharevisible == true && msg.current_url){
-       setTimeout(function(){
-          document.querySelector("span[title='Add link']").dispatchEvent(mouse());
-          var evt = document.createEvent("KeyboardEvent");
-          evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
-          document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
-          document.querySelector('td>div>input[type=text]').value = msg.current_url;
-        }, 1000)
+       (function(){
+          if(document.querySelector("span[title='Add link']")){
+            document.querySelector("span[title='Add link']").dispatchEvent(mouse());
+            var evt = document.createEvent("KeyboardEvent");
+            evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
+            document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
+            document.querySelector('td>div>input[type=text]').value = msg.current_url;
+          }else setTimeout(arguments.callee, 100);
+        })()
     }
   }else if(msg.action == "sharehide"){
     var views = document.querySelectorAll("#summary-view>div");

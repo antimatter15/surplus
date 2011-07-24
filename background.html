@@ -11,11 +11,31 @@
     stuff with very little forethought. Now it's a mess.
   */
   var frame = document.getElementById('frame');
+  
+  
 	if(localStorage.althost == 'yes'){
 		frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
 	}else{
   	frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  	
+  	var xhr = new XMLHttpRequest();
+  	xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+  	xhr.onload = function(){
+  	  var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+  	  xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+  	  xhr.onload = function(){
+  	    var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+  	    if(iHasNotify == false && vHasNotify == true){
+  	      localStorage.althost = 'yes';
+  	      location.reload();
+  	    }
+  	  }
+  	  xhr.send()
+  	}
+  	xhr.send();
 	}
+	
+	
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/settings/general?extension=surplus'
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/116347431032639424492/about'
   var heightstate = 0;
@@ -23,8 +43,16 @@
   var visible = false;
   var share_visible = false;
   var current_user = '';
-  var last_close = 0;
 	
+	
+	function popup_loaded(){
+	  chrome.browserAction.setPopup({popup:''});
+	  
+	}
+	function popup_closed(){
+	  chrome.browserAction.setPopup({popup:'popup.html'})
+    
+	}
 	function start_load(){
 		//yay its been loaded!
 		if(!global_notifications_port){
@@ -38,6 +66,7 @@
 		
 	}
   function evacuate(){
+    console.log("Evacuate");
 		if(!share_visible) ensure_closed();
     console.log('restoring window')
     document.adoptNode(frame);
@@ -132,6 +161,7 @@
   }
   
   setInterval(function(){manualUpdate()}, 20 * 1000);
+
   
   function drawIcon(num){
 		num += '';
@@ -158,6 +188,8 @@
   
   chrome.extension.onConnect.addListener(function(port) {
     if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
+      chrome.browserAction.setPopup({popup:'popup.html'});
+    
       global_port = port;
       port.onMessage.addListener(function(msg){
         current_user = msg.user;
@@ -264,11 +296,13 @@
 	    type: 'popup'})
 */
 	setTimeout(function(){
-		if(!global_port) location.reload();
+		//if(!global_port) location.reload();
 	}, 8000);
   setInterval(function(){
-    if(login_error) location.reload();
-
-		
+    //if(login_error) location.reload();
   }, 15000);
+  chrome.browserAction.setIcon({path: 'img/old.png'});
+  chrome.browserAction.setPopup({popup:''});
+  
+  
 </script>

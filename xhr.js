@@ -18,7 +18,9 @@ script.innerHTML = ';('+(function(){
   }
   XMLHttpRequest.prototype.send = function(data){
     if(/updatelastreadtime/.test(this.__url)){
-      
+      chrome.extension.sendRequest({action: 'readtime', url: this.__url}, function(response) {
+        if(response == true) this.__send(data);        
+      });
     }else{
       this.__send(data)
     }

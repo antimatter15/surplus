@@ -23,7 +23,7 @@
       <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable desktop notifications</label>
     </p>
 		<p>
-      <input type="checkbox" id="althost" onchange='localStorage.althost=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload()'> <label for="althost">Use alternate frame host</label>
+      <input type="checkbox" id="althost" onchange='localStorage.althost=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload()'> <label for="althost">Use Google Video instead of Google Images as the notifications frame host (Suggested if "User does not have Google+" error occurs).</label>
     </p>
     <p>
       <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable desktop notification sounds</label>
@@ -40,7 +40,7 @@
       <input type="number" value=0 min=1 max=999 id="dismiss"  oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications auto dismiss time in seconds (doesn't do anything if desktop notifications are disabled.)</label> 
     </p>
     <p> 
-      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Authenticated User (for multiple simulatenous account logins. If you are unsure, just select 0.)</label> 
+      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Authenticated User (0 correlates to the first logged in account, 1 for the second, 2 for the third and so on)</label> 
     </p>
 
  
