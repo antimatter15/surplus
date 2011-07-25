@@ -50,8 +50,9 @@
 	  
 	}
 	function popup_closed(){
-	  chrome.browserAction.setPopup({popup:'popup.html'})
-    
+	  setTimeout(function(){
+	    chrome.browserAction.setPopup({popup:'popup.html'})
+	  },762)
 	}
 	function start_load(){
 		//yay its been loaded!
@@ -84,7 +85,7 @@
   var baseheight = 500;
 
   function shift_frame(){
-    frame.style.height = (baseheight + (heightstate++ % 7) - 3)+'px'; //hopefully users dont notice 3px diffs
+    frame.style.height = (baseheight + ((heightstate++ % 7) - 3))+'px'; //hopefully users dont notice 3px diffs
   }
   
   
@@ -200,10 +201,8 @@
           login_error = msg.error;
           drawIcon("!!");
         }else{
-					if(share_visible && msg.height){
-						
+					if(share_visible && msg.height)
 						frame.style.height = Math.max(msg.height, baseheight)+'px';
-					}
           global_port_src = msg.src;
           if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
             setTimeout(manualUpdate, 100);
@@ -227,6 +226,8 @@
                 handleCount(msg.response)
               }else if(msg.action == 'share'){
                 open_share();
+              }else if(msg.action == 'profile'){
+                chrome.tabs.create({url: 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/me'})
               }else if(msg.action == 'sharevisible' && msg.value == false){
                 if(share_visible){
                   close_share();
@@ -242,6 +243,7 @@
   });
   
   var getting_notifications = false;
+  /*
   chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     console.log("Killing a updatereadtime")
     if(getting_notifications){
@@ -256,7 +258,7 @@
       sendResponse(true)
       console.log("sent response true")
     }
-  })
+  })*/
   function getNotifications(num){
     if(visible) return;
     num += '';

@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "3.1.41",
+  "version": "3.2.1",
   "description": "Google Plus Integration for Chrome.",
   "background_page": "background.html",
   "icons": {
@@ -28,12 +28,6 @@
     {
       "matches": ["https://plus.google.com/u/*/_/notifications/frame*"],
       "js": ["notification.js"],
-      "all_frames": true
-    },
-    {
-      "matches": ["https://plus.google.com/_/apps-static/_/js/*"],
-      "js": ["xhr.js"],
-    	"run_at": "document_start",
       "all_frames": true
     }
   ],

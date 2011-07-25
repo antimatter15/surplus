@@ -18,7 +18,7 @@
 
 body {
   width: 441px;
-  height: 482px;
+  /*height: 482px;*/
   background: #fff;
   overflow-y: auto;
   overflow-x: hidden;
@@ -57,7 +57,6 @@ window.onunload = function(){
 function attemptLoad(){
 	bg = chrome.extension.getBackgroundPage();
 	bg.popup_loaded();
-	
 	frame = bg.document.getElementById('frame');
 	numTries++;
 	//document.getElementById('reload').style.display = '';
@@ -84,6 +83,7 @@ function attemptLoad(){
 	  document.body.appendChild(frame);
 		bg.start_load();
 		console.log("Loaded")
+		document.body.style.height = (parseInt(frame.style.height) - 15) + 'px';
 	}
 }
 </script>

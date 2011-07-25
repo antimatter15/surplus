@@ -7,6 +7,13 @@ function mouse(name){
   return evt;
 }
 
+document.addEventListener("keydown", function(e){
+  if(e.keyCode == 27){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+},true)
+
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
   if(msg.action == 'notifications'){
@@ -53,6 +60,7 @@ port.onMessage.addListener(function(msg){
     }
     document.getElementById('usersettings').onclick = function(){
       //do something
+      port.postMessage({action: 'profile'})
     }
     function check_visible(){
       var views = document.querySelectorAll("#summary-view>div");

@@ -14,7 +14,6 @@ function toggleShare(){
   document.getElementById('gbg3').dispatchEvent(mouse());
 }
 
-
 var port = chrome.extension.connect({name: "chell"});
 var sharing = false;
 port.onMessage.addListener(function(msg){
