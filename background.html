@@ -158,7 +158,7 @@
   var old_num = 0;
   function handleCount(text){
     var num = JSON.parse(text.substr(4))[1];
-    drawIcon(num);
+    setNum(num);
     if(old_num < num) getNotifications(num);
     console.log('Got Notifications',num, 'Delta='+(num-old_num));   
     old_num = num;
@@ -166,8 +166,16 @@
   
   setInterval(function(){manualUpdate()}, 20 * 1000);
 
+  function setNum(num) {
+	  if(localStorage.usebadge == 'yes') {
+		  setBadge(num);
+	  } else {
+		drawIcon(num);  
+	  }
+  }
   
   function drawIcon(num){
+	  
 		num += '';
     var c = document.createElement('canvas').getContext('2d');
     var none = (num.replace(/[\s0]/g,'') == '');
@@ -185,6 +193,10 @@
       chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
     }
   }
+  function setBadge(num) {
+		num = parseInt(num) == 0 ? '' : num.toString();
+		chrome.browserAction.setBadgeText({ text:num });
+	}
   var connect_times = 0;
   
   var last_recorded_number = -1;
@@ -319,7 +331,14 @@
   setInterval(function(){
     //if(login_error) location.reload();
   }, 15000);
-  chrome.browserAction.setIcon({path: 'img/old.png'});
+  
+  
+  
+  if(localStorage.usebadge == 'yes') { 
+  	chrome.browserAction.setIcon({path: 'img/classic.png'});
+  } else {
+  	chrome.browserAction.setIcon({path: 'img/old.png'});
+  }
   chrome.browserAction.setPopup({popup:''});
   
   
