@@ -152,7 +152,7 @@
       global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
     else if(parseInt(last_recorded_number) > -1){
       console.log("nawt yedt")
-      drawIcon(last_recorded_number);
+      setNum(last_recorded_number);
     }
   }
   var old_num = 0;
