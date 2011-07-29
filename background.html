@@ -1,4 +1,4 @@
-<iframe id="frame"></iframe>
+
 <style>
   iframe {
     width: 440px;
@@ -10,6 +10,7 @@
     This used to be a fairly simple bit of code, but then I added
     stuff with very little forethought. Now it's a mess.
   */
+  document.write('<iframe id="frame" src="http://images.google.com/?extension=ultimate&authuser='+(localStorage.auth_user||0)'></iframe>');
   var frame = document.getElementById('frame');
   
   
