@@ -1,4 +1,4 @@
-<iframe id="frame"></iframe>
+
 <style>
   iframe {
     width: 440px;
@@ -10,6 +10,7 @@
     This used to be a fairly simple bit of code, but then I added
     stuff with very little forethought. Now it's a mess.
   */
+  document.write('<iframe id="frame" src="http://images.google.com/?extension=ultimate&authuser='+(localStorage.auth_user||0)'></iframe>');
   var frame = document.getElementById('frame');
   
   
@@ -152,7 +153,7 @@
       global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
     else if(parseInt(last_recorded_number) > -1){
       console.log("nawt yedt")
-      drawIcon(last_recorded_number);
+      setNum(last_recorded_number);
     }
   }
   var old_num = 0;

@@ -1,7 +1,7 @@
 {
-  "name": "Surplus",
+  "name": "Surplus Tweaked",
   "version": "3.2.2",
-  "description": "Google Plus Integration for Chrome",
+  "description": "Google Plus button for Chrome",
   "background_page": "background.html",
   "icons": {
     "16": "img/16.png",
