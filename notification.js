@@ -40,6 +40,13 @@ port.onMessage.addListener(function(msg){
               evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
               document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
               document.querySelector('td>div>input[type=text]').value = msg.current_url;
+              if(/https?:/.test(msg.current_url)){
+                setTimeout(function(){
+                  var addbtn = document.querySelector('td>div div[role=button]');
+                  addbtn.dispatchEvent(mouse('down'));
+                  addbtn.dispatchEvent(mouse('up'));
+                }, 100)
+              }
             }, 100);
           }else setTimeout(arguments.callee, 100);
         })()
