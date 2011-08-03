@@ -26,6 +26,7 @@ function ensure_share(state){
 function ensure(state){
   var gbwc = document.querySelector('#gbwc');
   var isopen = gbwc ? (gbwc.style.display != 'none') : false;
+  console.log("Checking visible state", gbwc, isopen, state);
   if(isopen != state) toggle();
 }
 
@@ -41,8 +42,9 @@ port.onMessage.addListener(function(msg){
 })
 
 port.onDisconnect.addListener(function(){
-  alert("disconnect");
-  //location.reload();
+  setTimeout(function(){
+    location.reload();
+  }, 762);
 })
 
 setInterval(function(){

@@ -83,7 +83,7 @@
     if(global_notifications_port){
       global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
     }
-    visible = !visible;
+    visible = state;
     setTimeout(manualUpdate, 1000);
   }
 
@@ -186,11 +186,14 @@
   
   chrome.extension.onConnect.addListener(function(port) {
     if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
-      chrome.browserAction.setPopup({popup:'popup.html'});
+      setTimeout(function(){
+        chrome.browserAction.setPopup({popup:'popup.html'});
+      }, 762);
       console.log("Initialized new Sandbar Port", port);
       global_port = port;
       global_port_src = '';
       global_notifications_port = null;
+      
       ensure_popup(visible);
       
       port.onMessage.addListener(function(msg){
