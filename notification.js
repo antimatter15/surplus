@@ -30,6 +30,7 @@ port.onMessage.addListener(function(msg){
     xhr.send();
   }else if(msg.action == "sharevisible"){
     sharevisible = msg.value;
+    console.log("Set Sharevisible to", sharevisible);
     if(sharevisible == true && msg.current_url){
        (function(){
           if(document.querySelector("span[title='Add link']").offsetHeight){
@@ -44,6 +45,7 @@ port.onMessage.addListener(function(msg){
         })()
     }
   }else if(msg.action == "sharehide"){
+    console.log("Temporarily Hiding Share box");
     var views = document.querySelectorAll("#summary-view>div");
     views[0].style.visibility = 'hidden';
     setTimeout(function(){
@@ -56,7 +58,6 @@ port.onMessage.addListener(function(msg){
       .parentNode
       .querySelector("div");
     div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 8px;display:inline'>Share</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='usersettings'>"+msg.user+"</span>";
-    console.log(div.innerHTML)
     document.getElementById('sharebutton').onclick = function(){
       port.postMessage({action: 'share'})
     }

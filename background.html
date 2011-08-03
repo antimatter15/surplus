@@ -23,27 +23,7 @@
   
   frame = document.getElementById('frame');
   
-  if(localStorage.althost == 'yes'){
-	  frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-  }else{
-  	frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-  	
-  	var xhr = new XMLHttpRequest();
-  	xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-  	xhr.onload = function(){
-  	  var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-  	  xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-  	  xhr.onload = function(){
-  	    var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-  	    if(iHasNotify == false && vHasNotify == true){
-  	      localStorage.althost = 'yes';
-  	      location.reload();
-  	    }
-  	  }
-  	  xhr.send()
-  	}
-  	xhr.send();
-  }
+
 	
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/settings/general?extension=surplus'
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/116347431032639424492/about'
@@ -61,7 +41,8 @@
 	function popup_closed(){
 	  setTimeout(function(){
 	    chrome.browserAction.setPopup({popup:'popup.html'})
-	  },762)
+	  },/Windows/.test(navigator.userAgent)?762:267) //762 is the feynman point in pi
+	  //i just woke up one day with the number stuck in my head
 	}
 	function start_load(){
 		//yay its been loaded!
@@ -69,8 +50,7 @@
 			console.log("loaded popup and notification port not found")
 			setTimeout(function(){
 				if(!global_notifications_port) location.reload();
-				
-			}, 3141)
+			}, 3141) //this is pi
 		}
 		if(!share_visible) ensure_open();
 		
@@ -81,12 +61,6 @@
     console.log('restoring window')
     document.adoptNode(frame);
     document.body.appendChild(frame);
-		/*
-		chrome.browserAction.setPopup({popup:''});
-		setTimeout(function(){
-			chrome.browserAction.setPopup({popup:'popup.html'});
-		}, 1000)
-		*/
   }
   var global_port;
   var global_port_src = '';
@@ -99,8 +73,11 @@
   
   
 
-  function open_popup(){
-    global_port.postMessage({action: 'notification'});
+  function ensure_popup(state){
+    if(state == true && share_visible){
+      close_share();
+    }
+    global_port.postMessage({action: 'winstate', state: state});
     shift_frame();
     share_visible = false;
     if(global_notifications_port){
@@ -111,6 +88,7 @@
   }
 
   function open_share(){
+    console.log("Opening Share Window");
     ensure_closed();
     shift_frame()
     share_visible = true;
@@ -128,6 +106,7 @@
   }
   
   function close_share(){
+    console.log("Closing Share Window");
     share_visible = false;
     shift_frame()
     global_notifications_port.postMessage({action: 'sharevisible', value: share_visible})
@@ -136,11 +115,11 @@
   }
 
   function ensure_open(){
-    if(!visible) open_popup();
+    ensure_popup(true);
   }
   
   function ensure_closed(){
-    if(visible) open_popup();
+    ensure_popup(false);
   }
 
   var last_updated_time = 0;
@@ -208,8 +187,12 @@
   chrome.extension.onConnect.addListener(function(port) {
     if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
       chrome.browserAction.setPopup({popup:'popup.html'});
-    
+      console.log("Initialized new Sandbar Port", port);
       global_port = port;
+      global_port_src = '';
+      global_notifications_port = null;
+      ensure_popup(visible);
+      
       port.onMessage.addListener(function(msg){
         current_user = msg.user;
         if(msg.error){
@@ -228,10 +211,12 @@
       })
     }else{ // if(port.name == 'wheatley'){
       //console.log('recieved potential wheatley');
+      
       function poll(){
         if(global_port_src){
           //console.log('found global port source', global_port_src, port.name);
           if(global_port_src == port.name){
+            console.log("Initialized new Notifications Port", port);
             global_notifications_port = port;
             port.postMessage({action: 'accept', user: current_user});
             port.onMessage.addListener(function(msg){
@@ -245,6 +230,7 @@
                 chrome.tabs.create({url: 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/me'})
               }else if(msg.action == 'sharevisible' && msg.value == false){
                 if(share_visible){
+                  console.log("Auto Reopen Notifications");
                   close_share();
                   setTimeout(ensure_open, 100)
                 }
@@ -332,9 +318,10 @@
 	    type: 'popup'})
 */
   var birthday = +new Date;
+  
 	setTimeout(function(){
 		if(!global_port) location.reload();
-	}, 8000);
+	}, 18000);
   setInterval(function(){
     //if(login_error) location.reload();
     if(new Date - birthday > 1000 * 60 * 20){
@@ -348,7 +335,27 @@
   drawIcon('');
   chrome.browserAction.setPopup({popup:''});
   
-  
+  if(localStorage.althost == 'yes'){
+	  frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  }else{
+  	frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  	
+  	var xhr = new XMLHttpRequest();
+  	xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+  	xhr.onload = function(){
+  	  var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+  	  xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+  	  xhr.onload = function(){
+  	    var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+  	    if(iHasNotify == false && vHasNotify == true){
+  	      localStorage.althost = 'yes';
+  	      location.reload();
+  	    }
+  	  }
+  	  xhr.send()
+  	}
+  	xhr.send();
+  }
 </script>
 
 </body>

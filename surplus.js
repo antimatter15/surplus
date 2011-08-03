@@ -7,26 +7,42 @@ function mouse(name){
 }
 
 function toggle(){
+  console.log("Toggling Notifications Button");
   document.getElementById('gbg1').dispatchEvent(mouse());
 }
 
 function toggleShare(){
+  console.log("Toggling Share Button");
   document.getElementById('gbg3').dispatchEvent(mouse());
+
+}
+
+function ensure_share(state){
+  var gbwc = document.querySelector('#gbwc');
+  var isopen = gbwc ? (gbwc.style.display != 'none') : false;
+  if(isopen != state) toggleShare();
+}
+
+function ensure(state){
+  var gbwc = document.querySelector('#gbwc');
+  var isopen = gbwc ? (gbwc.style.display != 'none') : false;
+  if(isopen != state) toggle();
 }
 
 var port = chrome.extension.connect({name: "chell"});
 var sharing = false;
 port.onMessage.addListener(function(msg){
-  if(msg.action == "notification"){
-    toggle();
+  if(msg.action == "winstate"){
+    ensure(msg.state);
   }else if(msg.action == 'share'){
-    toggleShare()
+    ensure_share(msg.visible);
     sharing = msg.visible;
   }
 })
 
 port.onDisconnect.addListener(function(){
-  location.reload();
+  alert("disconnect");
+  //location.reload();
 })
 
 setInterval(function(){
