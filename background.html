@@ -9,10 +9,12 @@
 </style>
 </head>
 <body>
+
 <script>
   //document.write('<iframe id="frame" src="http://images.google.com/?extension=surplus&authuser='+(localStorage.auth_user||0)+'><'+'/iframe>');
   document.write("<iframe id='frame'><"+"/iframe"+">");
 </script>
+<script src="parse.js"></script>
 <script>
 
   var frame;
@@ -223,9 +225,9 @@
             global_notifications_port = port;
             port.postMessage({action: 'accept', user: current_user});
             port.onMessage.addListener(function(msg){
-              if(msg.action == 'notifications')
+              /*if(msg.action == 'notifications')
                 showqueue = showqueue.concat(msg.messages);
-              else if(msg.action == 'xhr'){
+              else */if(msg.action == 'xhr'){
                 handleCount(msg.response)
               }else if(msg.action == 'share'){
                 open_share();
@@ -246,8 +248,8 @@
     }
   });
   
-  var getting_notifications = false;
   /*
+  var getting_notifications = false;
   chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     console.log("Killing a updatereadtime")
     if(getting_notifications){
@@ -263,6 +265,7 @@
       console.log("sent response true")
     }
   })*/
+  
   function getNotifications(num){
     if(visible) return;
     num += '';
@@ -270,6 +273,7 @@
 		if(state == 'idle') return;
     if(num.replace(/[\s0]/g,'') != ''){
       if(localStorage.notify == 'yes'){
+        /*
         getting_notifications = true;
         console.log('opening popup');
         ensure_open();
@@ -284,6 +288,15 @@
             getting_notifications = false;
           }, 100);
         }, 1000);      
+        */
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://plus.google.com/u/0/_/notifications/getnotificationsdata', true);
+        xhr.onload = function(){
+          var notifications = parseNotifications(eval(xhr.responseText.substr(5)));
+          showqueue = showqueue.concat(notifications.slice(0, parseInt(num)));
+        }
+        xhr.send();
+        
       }else if(localStorage.notify_sound == 'yes'){
         (new Audio("notify.ogg")).play();
       }
@@ -305,7 +318,7 @@
 
       notification.show();
       notification.onclick = function(){
-        chrome.tabs.create({url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all'})
+        //chrome.tabs.create({url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all'})
       }
       setTimeout(function(){
         notification.cancel();

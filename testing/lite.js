@@ -3,7 +3,9 @@ xhr.open('get', 'https://plus.google.com/u/0/_/notifications/getnotificationsdat
 xhr.send();
 x = eval(xhr.responseText.substr(5))
 
-var verbs = {
+//nearly equivalent to the Google+ Notifications message generator
+
+var verbs = { //
   6: 'added you on Google+',
   32: 'invited you to join Google+',
   1: 'wrote on your profile',
@@ -56,7 +58,8 @@ x[1][0].map(function(e){ //loop through every notification
   if(actions.length > 1){
     act += (
       ((actions.length > 2)?(', ' + actions.slice(1, -1).join(', ')):'')
-      + ', and ' + actions.slice(-1)).replace(/(your|a) \{thing\}/g, 'it')
+      + ', and ' + actions.slice(-1))
+    .replace(/(your|a) \{thing\}/g, 'it') //uses pronouns
   }
-  return act.replace(/\{thing\}/g, thing)+'.'
+  return act.replace(/\{thing\}/g, thing)+'.'//basic sort of templating system
 })
