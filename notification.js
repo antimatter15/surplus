@@ -33,11 +33,13 @@ port.onMessage.addListener(function(msg){
     if(sharevisible == true && msg.current_url){
        (function(){
           if(document.querySelector("span[title='Add link']").offsetHeight){
-            document.querySelector("span[title='Add link']").dispatchEvent(mouse());
-            var evt = document.createEvent("KeyboardEvent");
-            evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
-            document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
-            document.querySelector('td>div>input[type=text]').value = msg.current_url;
+            setTimeout(function(){
+              document.querySelector("span[title='Add link']").dispatchEvent(mouse());
+              var evt = document.createEvent("KeyboardEvent");
+              evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
+              document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
+              document.querySelector('td>div>input[type=text]').value = msg.current_url;
+            }, 100);
           }else setTimeout(arguments.callee, 100);
         })()
     }

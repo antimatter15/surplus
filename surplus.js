@@ -25,6 +25,10 @@ port.onMessage.addListener(function(msg){
   }
 })
 
+port.onDisconnect.addListener(function(){
+  location.reload();
+})
+
 setInterval(function(){
   var el = document.getElementById('gbi1')
   var uid = document.getElementById('gbi4').innerText || document.querySelector('a[href="//google.com/profiles"]').innerText.trim();
