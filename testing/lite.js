@@ -18,6 +18,10 @@ return e[1].map(function(k){return k[2][0]}).join(', ')+' '+(verb[code]||('unkno
 })
 })
 
+var xhr = new XMLHttpRequest();
+xhr.open('get', 'https://plus.google.com/u/0/_/notifications/getnotificationsdata', true);
+xhr.send();
+x = eval(xhr.responseText.substr(5))
 
 var verbs = {
   6: 'added you on Google+',
@@ -41,28 +45,31 @@ var verbs = {
   33: "invites you to a hangout"
 }
 
-
-x[0][0][1][0].map(function(e){ //loop through every notification
+var last = x[1][1]; //or is it 2?!?!?!? 
+//2 seems to be the last time that updatelastreadtime was called
+x[1][0].map(function(e){ //loop through every notification
   var notifyType = e[6]; //2 = photo, 1 = post
-  var thing = notifyType==2?'photo':'post';
+  var thing = notifyType == 2 ? 'photo' : 'post';
   var actions = e[2].map(function(e){ //iterate through the participants
     var code = e[1][0][1];
     var actors = e[1].map(function(k){
+      console.log(k, (k[3] - last)/1000/1000)
+      if(k[3] - last > 0) console.log(k[2][0]);
+      //if k[3] - last > 0 emboldenify
       return k[2][0]
     });
-    var main;
+    var main = actors.join(', ');
     if(actors.length > 4){
-      main =  actors.slice(0, 3).join(', ') + ' and '+(actors.length - 3)+' others'
-    }else{
-      main = actors.join(', ');
+      main = actors.slice(0, 3).join(', ') + ', and '+(actors.length - 3)+' others'
     }
     
-    return main +' '+(verbs[code]||('unknown'+code));
+    return main +' '+(verbs[code]||('did something ('+code+')'));
   });
   var act = actions[0];
   if(actions.length > 1){
-    if(actions.length > 2) act += ', ' + (actions.slice(1, -1).join(', ');
-    act += ' and ' + actions.slice(-1)).replace(/(your|a) \{thing\}/g, 'it')
+    act += (
+      ((actions.length > 2)?(', ' + actions.slice(1, -1).join(', ')):'')
+      + ' and ' + actions.slice(-1)).replace(/(your|a) \{thing\}/g, 'it')
   }
   return act.replace(/\{thing\}/g, thing)+'.'
 })
