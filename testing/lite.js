@@ -1,23 +1,3 @@
-x[0][0][1][0][0][2].map(function(e){return e[1].map(function(k){return [k[2][0], k[1]]})})
-
-x[0][0][1][0][0][2].map(function(e){return e[1][0][1]})
-
-x[0][0][1][0].map(function(e){return e[2].map(function(e){
-var verb = {
-2: 'commented',
-20: "+1'd",
-5: 'reshared',
-6: 'added you', 
-24: 'shared a post',
-15: 'mentioned',
-33: 'invited you to a hangout',
-32: 'invited you'
-};
-var code = e[1][0][1];
-return e[1].map(function(k){return k[2][0]}).join(', ')+' '+(verb[code]||('unknown'+code))
-})
-})
-
 var xhr = new XMLHttpRequest();
 xhr.open('get', 'https://plus.google.com/u/0/_/notifications/getnotificationsdata', true);
 xhr.send();
@@ -49,13 +29,20 @@ var last = x[1][1]; //or is it 2?!?!?!?
 //2 seems to be the last time that updatelastreadtime was called
 x[1][0].map(function(e){ //loop through every notification
   var notifyType = e[6]; //2 = photo, 1 = post
-  var thing = notifyType == 2 ? 'photo' : 'post';
+  var thingurl = e[7]?('https://plus.google.com/'+e[7][21]):null;
+  var thing = (notifyType == 2 ? 'photo' : 'post');
+  thing = '<a href="'+thingurl+'">'+thing+'</a>';
   var actions = e[2].map(function(e){ //iterate through the participants
-    var code = e[1][0][1];
+    var code = e[1][0][1]; //retrieve the action code of the first participant in the list
     var actors = e[1].map(function(k){
-      console.log(k, (k[3] - last)/1000/1000)
-      if(k[3] - last > 0) console.log(k[2][0]);
       //if k[3] - last > 0 emboldenify
+      //Profile Address "https://profiles.google.com"+k[2][1]
+      //Profile Pic k[2][2]
+      //User ID k[2][3]
+      //Gender k[2][4]
+      var profile = 'https://profiles.google.com'+k[2][1];
+      var pic = k[2][2];
+      return '<a href="'+profile+'">'+k[2][0]+'</a>';
       return k[2][0]
     });
     var main = actors.join(', ');
@@ -69,7 +56,7 @@ x[1][0].map(function(e){ //loop through every notification
   if(actions.length > 1){
     act += (
       ((actions.length > 2)?(', ' + actions.slice(1, -1).join(', ')):'')
-      + ' and ' + actions.slice(-1)).replace(/(your|a) \{thing\}/g, 'it')
+      + ', and ' + actions.slice(-1)).replace(/(your|a) \{thing\}/g, 'it')
   }
   return act.replace(/\{thing\}/g, thing)+'.'
 })
