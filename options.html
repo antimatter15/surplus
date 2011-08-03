@@ -1,4 +1,3 @@
-
 <!doctype html> 
 <html> 
   <head> 
@@ -10,75 +9,83 @@
         margin-left: 120px;
         background: url(img/64.png) no-repeat;
         background-position: 30px 30px;
+        font-size: small;
+      }
+      
+      hr {
+        border-style: solid;
+        border-top: none;
+        border-color: gray;
       }
     </style> 
  
   </head> 
   <body> 
     <h2 id="progress">Surplus Settings</h2> 
-
-    <p>
-      <input type="checkbox" id="usebadge" onchange='localStorage.usebadge=this.checked?"yes":"no"'> <label for="usebadge">Use classic Google+ icon and badge</label>
-    </p>
-    <p>
-      <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable desktop notifications</label>
-    </p>
-		<p>
-      <input type="checkbox" id="althost" onchange='localStorage.althost=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload()'> <label for="althost">Use Google Video instead of Google Images as the notifications frame host (Suggested if "User does not have Google+" error occurs).</label>
-    </p>
+    <!--
+    <div style="padding:10px;font-size:11px;background-color:#FBE092;border-radius:4px"> 
+      As much as I hate to infringe on this valuable screen estate, I feel a need to bring attention to what I consider an important issue. 
+      My <a href="https://plus.google.com/u/0/116347431032639424492/about" target="_blank">Google+ account</a>, along with the accounts of <a href="http://www.zdnet.com/blog/violetblue/google-plus-deleting-accounts-en-masse-no-clear-answers/567?tag=mantle_skin;content" target="_blank">many</a> others, 
+      has been <b>suspended on the grounds of merely using a pseudonym</b>. 
+      If you can do anything about this, not only to rectify this one profile
+      but to correct this ludicrous policy, I urge you to do so. Until then, <b>I can no longer support the Surplus extension.</b> 
+    </div> 
+    <p> -->
+      <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no"'> <label for="notif">Check to enable <b>desktop notifications</b></label> 
+    </p> 
+		<p> 
+      <input type="checkbox" id="althost" onchange='localStorage.althost=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload()'> <label for="althost">Use Google Video instead of Google Images as the <b>notifications frame host</b> (Suggested if "User does not have Google+" error occurs).</label> 
+    </p> 
     
-    <p>
-      <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable desktop notification sounds</label>
+    <p> 
+      <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable desktop <b>notification sounds</b></label> 
+    </p> 
+      <p>
+      <input type="checkbox" id="usebadge" onchange='localStorage.usebadge=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload();'> <label for="usebadge">Use classic <b>Google+ icon</b> and badge</label>
     </p>
-		<p>
-      <input type="checkbox" id="nocurrentpage" onchange='localStorage.nocurrentpage=this.checked?"yes":"no"'> <label for="nocurrentpage">Check to disable automatically adding the current page to share box</label>
-    </p>
+		<p> 
+      <input type="checkbox" id="nocurrentpage" onchange='localStorage.nocurrentpage=this.checked?"yes":"no"'> <label for="nocurrentpage">If checked, Surplus will <b>not automatically add the current page's URL</b> to the shared link field</label> 
+    </p> 
     <!--
     <p>
       <input type="checkbox" id="notifyread" onchange='localStorage.notifyread=this.checked?"yes":"no"'> <label for="notifyread">Automatically mark notifications as read.</label>
-    </p>-->
- <hr>
+    </p>--> 
+ <hr> 
     <p> 
-      <input type="number" min=1 max=999999 id="idle_duration"  oninput="localStorage.idle_duration=this.value"> <label for="idle_duration">Duration of time needed for the computer to be declared idle in minutes (notifications will not be shown while computer is idle)</label> 
-    </p>
-
-   <p>
-      <input type="number" value=0 min=1 max=999 id="dismiss"  oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications auto dismiss time in seconds (doesn't do anything if desktop notifications are disabled.)</label> 
-    </p>
-    <p> 
-      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Authenticated User (0 correlates to the first logged in account, 1 for the second, 2 for the third and so on)</label> 
-    </p>
-
+      <input type="number" min=1 max=999999 id="idle_duration"  oninput="localStorage.idle_duration=this.value"> <label for="idle_duration">Duration of time needed for the computer to be <b>declared idle in minutes</b> (notifications will not be shown while computer is idle)</label> 
+    </p> 
  
-    <p>
-      <input type="button" value="Apply Changes" title="Reload Background Page" onclick="chrome.extension.getBackgroundPage().location.reload();"> 
-    </p>
+   <p> 
+      <input type="number" value=0 min=1 max=999 id="dismiss"  oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications <b>automatic dismiss time</b> in seconds (doesn't do anything if desktop notifications are disabled.)</label> 
+    </p> 
+    <p> 
+      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Switch Current <b>Authenticated User</b> (0 correlates to the first logged in account, 1 for the second, 2 for the third and so on)</label> 
+    </p> 
+ 
+    <p> 
+      <input type="button" value="Reload Background Page" onclick="chrome.extension.getBackgroundPage().location.reload();"> Reloading the background page can fix certain issues with Surplus.
+    </p> 
     
-    <script>
+    <script> 
       document.getElementById('moar').value = localStorage.auth_user || 0;
       document.getElementById('dismiss').value = localStorage.dismiss || 5;
-      document.getElementById('usebadge').checked = localStorage.usebadge == 'yes';
       document.getElementById('notif').checked = localStorage.notify == 'yes';
+      document.getElementById('usebadge').checked = localStorage.usebadge == 'yes';
       document.getElementById('sounds').checked = localStorage.notify_sounds == 'yes';
-      document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
-		document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
-
+      //document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
+ 
       document.getElementById('nocurrentpage').checked = localStorage.nocurrentpage == 'yes';
-document.getElementById('althost').checked = localStorage.althost == 'yes';
+      document.getElementById('althost').checked = localStorage.althost == 'yes';
 			document.getElementById('idle_duration').value = parseInt(localStorage.idle_duration || '15')
       
       function change_user(val){
         localStorage.auth_user = val;
         chrome.extension.getBackgroundPage().location.reload();
       }
-    </script>
+    </script> 
     <hr> 
-    <div style="font-size: small"> 
-      <p>Part of the <a href="https://github.com/antimatter15/surplus">Surplus project</a>. Written by <a href="http://twitter.com/antimatter15">@antimatter15</a> (please follow me on twitter and on <a href="https://plus.google.com/116347431032639424492/posts?hl=en&tab=bh">Google+</a>). Email comments and concerns to <a href="mailto:antimatter15@gmail.com">antimatter15@gmail.com</a>.</p>
-      <p style="margin-top:2em;"><strong>Contributors</strong></p>
-      <ul>
-      	<li><a href="https://profiles.google.com/JeromeDane">Jerome Dane</a> - option to use classic Google+ icon and badge</li>
-      </ul>
+    <div style="font-size: x-small"> 
+      Part of the <a href="https://github.com/antimatter15/surplus">Surplus project</a>. Written by <a href="http://twitter.com/antimatter15">@antimatter15</a> (please follow me on twitter and on <a href="https://plus.google.com/116347431032639424492/posts?hl=en&tab=bh">Google+</a>). Email comments and concerns to <a href="mailto:antimatter15@gmail.com">antimatter15@gmail.com</a>.
     </div> 
  
   </body> 

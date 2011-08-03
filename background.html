@@ -1,22 +1,31 @@
-
+<!doctype html>
+<html>
+<head>
 <style>
   iframe {
     width: 440px;
     height: 300px;
   }
 </style>
+</head>
+<body>
 <script>
+  //document.write('<iframe id="frame" src="http://images.google.com/?extension=surplus&authuser='+(localStorage.auth_user||0)+'><'+'/iframe>');
+  document.write("<iframe id='frame'><"+"/iframe"+">");
+</script>
+<script>
+
+  var frame;
   /*
     This used to be a fairly simple bit of code, but then I added
     stuff with very little forethought. Now it's a mess.
   */
-  document.write('<iframe id="frame" src="http://images.google.com/?extension=ultimate&authuser='+(localStorage.auth_user||0)'></iframe>');
-  var frame = document.getElementById('frame');
   
+  frame = document.getElementById('frame');
   
-	if(localStorage.althost == 'yes'){
-		frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-	}else{
+  if(localStorage.althost == 'yes'){
+	  frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  }else{
   	frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
   	
   	var xhr = new XMLHttpRequest();
@@ -34,8 +43,7 @@
   	  xhr.send()
   	}
   	xhr.send();
-	}
-	
+  }
 	
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/settings/general?extension=surplus'
 	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/116347431032639424492/about'
@@ -153,13 +161,13 @@
       global_notifications_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
     else if(parseInt(last_recorded_number) > -1){
       console.log("nawt yedt")
-      setNum(last_recorded_number);
+      drawIcon(last_recorded_number);
     }
   }
   var old_num = 0;
   function handleCount(text){
     var num = JSON.parse(text.substr(4))[1];
-    setNum(num);
+    drawIcon(num);
     if(old_num < num) getNotifications(num);
     console.log('Got Notifications',num, 'Delta='+(num-old_num));   
     old_num = num;
@@ -167,37 +175,31 @@
   
   setInterval(function(){manualUpdate()}, 20 * 1000);
 
-  function setNum(num) {
-	  if(localStorage.usebadge == 'yes') {
-		  setBadge(num);
-	  } else {
-		drawIcon(num);  
-	  }
-  }
   
   function drawIcon(num){
-	  
-		num += '';
-    var c = document.createElement('canvas').getContext('2d');
-    var none = (num.replace(/[\s0]/g,'') == '');
-    var img = new Image();
-    img.src = none ? 'img/old.png' : 'img/new.png';
-    img.onload = function(){
-      c.drawImage(img, 0, 0);
-      c.font = "bold 13px arial,sans-serif";
-      c.fillStyle = none ? '#CCC' : '#fff';
-			if(parseInt(num) > 9 || num == '9+'){
-				c.fillText('9+', 3, 14);
-			}else{
-      	c.fillText(num+'', 6, 14);
-			}
-      chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
+    num += '';
+    if(localStorage.usebadge == 'yes') { 
+  		chrome.browserAction.setBadgeText({ text:num });
+  		chrome.browserAction.setIcon({path: 'img/classic.png'});
+    }else{
+  		chrome.browserAction.setBadgeText({ text:'' });
+      var c = document.createElement('canvas').getContext('2d');
+      var none = (num.replace(/[\s0]/g,'') == '');
+      var img = new Image();
+      img.src = none ? 'img/old.png' : 'img/new.png';
+      img.onload = function(){
+        c.drawImage(img, 0, 0);
+        c.font = "bold 13px arial,sans-serif";
+        c.fillStyle = none ? '#CCC' : '#fff';
+			  if(parseInt(num) > 9 || num == '9+'){
+				  c.fillText('9+', 3, 14);
+			  }else{
+        	c.fillText(num+'', 6, 14);
+			  }
+        chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
+      }
     }
   }
-  function setBadge(num) {
-		num = parseInt(num) == 0 ? '' : num.toString();
-		chrome.browserAction.setBadgeText({ text:num });
-	}
   var connect_times = 0;
   
   var last_recorded_number = -1;
@@ -277,22 +279,25 @@
     num += '';
 		chrome.idle.queryState(parseInt(localStorage.idle_duration||"15") * 60, function(state){
 		if(state == 'idle') return;
-    if(num.replace(/[\s0]/g,'') != '' && localStorage.notify == 'yes'){
-
-      getting_notifications = true;
-      console.log('opening popup');
-      ensure_open();
-      
-      setTimeout(function(){
-        console.log('requesting notifications');
-        global_notifications_port.postMessage({action: 'notifications', num: parseInt(num)})
+    if(num.replace(/[\s0]/g,'') != ''){
+      if(localStorage.notify == 'yes'){
+        getting_notifications = true;
+        console.log('opening popup');
+        ensure_open();
+        
         setTimeout(function(){
-          ensure_closed();
-          console.log('closing popup');
-          
-          getting_notifications = false;
-        }, 100);
-      }, 1000);      
+          console.log('requesting notifications');
+          global_notifications_port.postMessage({action: 'notifications', num: parseInt(num)})
+          setTimeout(function(){
+            ensure_closed();
+            console.log('closing popup');
+            
+            getting_notifications = false;
+          }, 100);
+        }, 1000);      
+      }else if(localStorage.notify_sound == 'yes'){
+        (new Audio("notify.ogg")).play();
+      }
     }
   })
   }
@@ -326,21 +331,25 @@
 	    height: height,
 	    type: 'popup'})
 */
+  var birthday = +new Date;
 	setTimeout(function(){
 		if(!global_port) location.reload();
 	}, 8000);
   setInterval(function(){
     //if(login_error) location.reload();
+    if(new Date - birthday > 1000 * 60 * 20){
+      chrome.idle.queryState(15 * 60, function(state){
+        if(state == 'idle'){
+          location.reload();
+        }
+      })
+    }
   }, 15000);
-  
-  
-  
-  if(localStorage.usebadge == 'yes') { 
-  	chrome.browserAction.setIcon({path: 'img/classic.png'});
-  } else {
-  	chrome.browserAction.setIcon({path: 'img/old.png'});
-  }
+  drawIcon('');
   chrome.browserAction.setPopup({popup:''});
   
   
 </script>
+
+</body>
+</html>

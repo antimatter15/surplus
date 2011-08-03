@@ -2,6 +2,14 @@
 
 It's actually surprisingly interesting how this works.
 
+### Contributors
+
+
+Jerome Dane - option to use classic Google+ icon and badge
+
+
+corylulu - document.write surplus iframe
+
 ### Squeezing Google into a popup
 
 The background page contains an `<iframe>` which points to Google Video Search. Google Video Search (it used to be Google Blog Search until a few issues were encountered with multiple sign-ins) was chosen because it had the new Google bar, has few dynamic elements so the page should load quickly, and looks fairly abandoned and probably won't change for future compatibility's sake. Google Video Search is pointed to a certain URL which fires a specific content script which reformats the page to work better as a popup.  (`http://video.google.com/?extension=surplus`)
