@@ -26,9 +26,6 @@
   frame = document.getElementById('frame');
   
 
-	
-	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/settings/general?extension=surplus'
-	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/116347431032639424492/about'
   var heightstate = 0;
   var login_error = false;
   var visible = false;
@@ -314,12 +311,8 @@
       
       window.notify_message = msg[0];
       window.notify_image = msg[1];
-      var notification = window.webkitNotifications.createHTMLNotification('notification.html');;
-
+      var notification = window.webkitNotifications.createHTMLNotification('notification.html');
       notification.show();
-      notification.onclick = function(){
-        //chrome.tabs.create({url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all'})
-      }
       setTimeout(function(){
         notification.cancel();
       }, parseInt(localStorage.autodismiss || 5) * 1000);

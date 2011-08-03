@@ -49,13 +49,18 @@ port.onDisconnect.addListener(function(){
 
 setInterval(function(){
   var el = document.getElementById('gbi1')
-  var uid = document.getElementById('gbi4').innerText || document.querySelector('a[href="//google.com/profiles"]').innerText.trim();
+  if(document.getElementById('gbi4') || document.querySelector('a[href="//google.com/profiles"]')){
+    var uid = document.getElementById('gbi4').innerText || document.querySelector('a[href="//google.com/profiles"]').innerText.trim();
+  
+  }else{
+    var uid = '';
+  }
   
   var frame = document.querySelector('#gbwc iframe');
   
   if(!el){
     if(uid) port.postMessage({error: 'User does not have Google+.', user: uid});
-    else port.postMessage({error: 'Please sign into Google first'});
+    else port.postMessage({error: 'Please sign into Google+'});
   }else{
     port.postMessage({num: el.innerText, user: uid, src: frame?frame.src:'', height: frame?parseInt(document.querySelector('#gbwc').style.height):null})
   }
