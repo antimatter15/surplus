@@ -1,4 +1,4 @@
-console.log("SURPLUS LOADED");
+log("SURPLUS LOADED");
 
 function mouse(name){
   var evt = document.createEvent("MouseEvents");
@@ -7,15 +7,17 @@ function mouse(name){
 }
 
 function toggle(){
-  console.log("Toggling Notifications Button");
+  log("Toggling Notifications Button");
   document.getElementById('gbg1').dispatchEvent(mouse());
 }
 
 function toggleShare(){
-  console.log("Toggling Share Button");
+  log("Toggling Share Button");
   document.getElementById('gbg3').dispatchEvent(mouse());
 
 }
+
+
 
 function ensure_share(state){
   var gbwc = document.querySelector('#gbwc');
@@ -25,8 +27,8 @@ function ensure_share(state){
 
 function ensure(state){
   var gbwc = document.querySelector('#gbwc');
-  var isopen = gbwc ? (gbwc.style.display != 'none') : false;
-  console.log("Checking visible state", gbwc, isopen, state);
+  var isopen = gbwc ? (!!(gbwc.style.display != 'none' && gbwc.style.height)) : false;
+  log("Checking visible state", gbwc, isopen, state);
   if(isopen != state) toggle();
 }
 
@@ -40,6 +42,18 @@ port.onMessage.addListener(function(msg){
     sharing = msg.visible;
   }
 })
+
+function log(){
+  var text = [].slice.call(arguments, 0).join(' ');
+  (function(){
+    if(port){
+      port.postMessage({log: text})
+    }else setTimeout(arguments.callee, 500)
+  })();
+  arguments.length
+  var args = 'abcdefghijklmnopqrstuvwxyz'.split('').slice(0, arguments.length);
+  (new Function(args.join(','),'console.log('+args.join(',')+')')).apply(this, arguments);
+}
 
 port.onDisconnect.addListener(function(){
   setTimeout(function(){

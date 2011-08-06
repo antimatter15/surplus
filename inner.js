@@ -34,6 +34,10 @@ port.onMessage.addListener(function(msg){
     if(sharevisible == true && msg.current_url){
        (function(){
           if(document.querySelector("span[title='Add link']").offsetHeight){
+            try{
+              [].slice.call(document.querySelectorAll("#summary-view>div")[0].querySelectorAll('div[tabindex="0"]'),0)
+                .filter(function(e){return(getComputedStyle(e).right=='11px')})[0].dispatchEvent(mouse());
+            }catch(err){}
             setTimeout(function(){
               document.querySelector("span[title='Add link']").dispatchEvent(mouse());
               var evt = document.createEvent("KeyboardEvent");

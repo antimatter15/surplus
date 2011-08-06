@@ -18,7 +18,7 @@
 
 body {
   width: 441px;
-  /*height: 482px;*/
+  height: 200px;
   background: #fff;
   overflow-y: auto;
   overflow-x: hidden;
@@ -83,7 +83,7 @@ function attemptLoad(){
 	  document.body.appendChild(frame);
 		bg.start_load();
 		console.log("Loaded")
-		document.body.style.height = (parseInt(frame.style.height) - 15) + 'px';
+		document.body.style.height = (bg.baseheight-15)+'px';//(parseInt(frame.style.height) - 15) + 'px';
 	}
 }
 </script>

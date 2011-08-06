@@ -25,15 +25,12 @@
   
   frame = document.getElementById('frame');
   
-
-	
-	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/settings/general?extension=surplus'
-	//frame.src = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/116347431032639424492/about'
   var heightstate = 0;
   var login_error = false;
-  var visible = false;
+  var visible = true;
   var share_visible = false;
   var current_user = '';
+  var last_event = +new Date;
 	
 	
 	function popup_loaded(){
@@ -76,6 +73,7 @@
   
 
   function ensure_popup(state){
+    last_event = +new Date;
     if(state == true && share_visible){
       close_share();
     }
@@ -150,7 +148,10 @@
     var num = JSON.parse(text.substr(4))[1];
     drawIcon(num);
     if(old_num < num) getNotifications(num);
-    console.log('Got Notifications',num, 'Delta='+(num-old_num));   
+    if((num-old_num) != 0){
+      console.log('Got Notifications',num, 'Delta='+(num-old_num));   
+      last_event = +new Date;
+    }
     old_num = num;
   }
   
@@ -197,15 +198,22 @@
       global_notifications_port = null;
       
       ensure_popup(visible);
-      
+      setTimeout(function(){
+        if(document.getElementById('frame')){ //check if it is being hosted in the bg
+          ensure_closed();
+          console.log('ensure closed after check for parenthood');
+        }
+      }, 100)
       port.onMessage.addListener(function(msg){
         current_user = msg.user;
-        if(msg.error){
+        if(msg.log){
+          console.log('r', msg.log);
+        }else if(msg.error){
           login_error = msg.error;
           drawIcon("!!");
         }else{
 					if(share_visible && msg.height)
-						frame.style.height = Math.max(msg.height, baseheight)+'px';
+						frame.style.height = Math.max(msg.height+290, baseheight)+'px';
           global_port_src = msg.src;
           if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
             setTimeout(manualUpdate, 100);
@@ -248,23 +256,7 @@
     }
   });
   
-  /*
-  var getting_notifications = false;
-  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    console.log("Killing a updatereadtime")
-    if(getting_notifications){
-      if(localStorage.notifyread == 'yes'){
-        sendResponse(true)
-        console.log('NotifyRead is enabled')
-      }else{
-        sendResponse(false);
-        console.log("marglebalrghfve")
-      }
-    }else{
-      sendResponse(true)
-      console.log("sent response true")
-    }
-  })*/
+
   
   function getNotifications(num){
     if(visible) return;
@@ -273,22 +265,7 @@
 		if(state == 'idle') return;
     if(num.replace(/[\s0]/g,'') != ''){
       if(localStorage.notify == 'yes'){
-        /*
-        getting_notifications = true;
-        console.log('opening popup');
-        ensure_open();
-        
-        setTimeout(function(){
-          console.log('requesting notifications');
-          global_notifications_port.postMessage({action: 'notifications', num: parseInt(num)})
-          setTimeout(function(){
-            ensure_closed();
-            console.log('closing popup');
-            
-            getting_notifications = false;
-          }, 100);
-        }, 1000);      
-        */
+
         var xhr = new XMLHttpRequest();
         xhr.open('get', 'https://plus.google.com/u/0/_/notifications/getnotificationsdata', true);
         xhr.onload = function(){
@@ -317,9 +294,6 @@
       var notification = window.webkitNotifications.createHTMLNotification('notification.html');;
 
       notification.show();
-      notification.onclick = function(){
-        //chrome.tabs.create({url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all'})
-      }
       setTimeout(function(){
         notification.cancel();
       }, parseInt(localStorage.autodismiss || 5) * 1000);
@@ -337,6 +311,9 @@
   
 	setTimeout(function(){
 		if(!global_port) location.reload();
+		if(new Date - last_event > 18 * 60 * 1000){
+		  frame.src = frame.src; //reload frame.
+		}
 	}, 18000);
   setInterval(function(){
     //if(login_error) location.reload();
