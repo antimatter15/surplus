@@ -74,7 +74,7 @@ function attemptLoad(){
         window.close()
       }, 1500)
 	  }else{
-	    document.getElementById('reload').innerText += bg.login_error + " (User #"+(localStorage.auth_user||0)+" "+bg.current_user+")";
+	    document.getElementById('reload').innerText += bg.login_error + " (User "+(localStorage.auth_user||0)+(bg.current_user?(' '+bg.current_user):'')+")";
 	  }
 	  //document.getElementById('reload').style.display = '';
 	}else{

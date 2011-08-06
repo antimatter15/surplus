@@ -41,7 +41,7 @@ return x[1][0].map(function(e){ //loop through every notification
       var profile = 'https://profiles.google.com'+k[2][1];
       var pic = k[2][2];
       actlist.push(k);
-      return '<a href="'+profile+'" target=_blank>'+k[2][0]+'</a>';
+      return '<a href="'+profile+'" target=_blank '+((k[3]-last>0)?'style="font-weight:bold"':'')+'>'+k[2][0]+'</a>';
       return k[2][0]
     });
     var main = actors.join(', ');
