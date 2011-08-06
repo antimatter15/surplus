@@ -79,7 +79,8 @@
 	}
   function evacuate(){
     console.log("Evacuate");
-		if(!share_visible) ensure_closed();
+		//if(!share_visible) ensure_closed();
+		
     console.log('restoring window')
     document.adoptNode(frame);
     document.body.appendChild(frame);
@@ -280,6 +281,22 @@
   });
   
 
+  function updatelastreadtime(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', 'https://plus.google.com/notifications/all', true);
+    xhr.onload = function(){
+      var code = xhr.responseText.match(/"https:\/\/www\.google\.com\/csi"\,"([A-Za-z0-9\-_:]+)"\,\,\,/)[1];
+      var xhr2 = new XMLHttpRequest();
+      xhr2.onload = function(){
+        load_notifications();
+        chrome.extension.getBackgroundPage().update_count();
+      }
+      xhr2.open('post', 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/notifications/updatelastreadtime', true);
+      xhr2.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+      xhr2.send('time='+(1000*new Date)+'&at='+code);
+    }
+    xhr.send();
+  }
   
   function getNotifications(num){
     if(visible) return;
@@ -294,6 +311,9 @@
         xhr.onload = function(){
           var notifications = parseNotifications(eval(xhr.responseText.substr(5)));
           showqueue = showqueue.concat(notifications.slice(0, parseInt(num)));
+          if(localStorage.notifyread == 'yes'){
+            updatelastreadtime()
+          }
         }
         xhr.send();
         
@@ -333,13 +353,18 @@
   var birthday = +new Date;
   
 	setTimeout(function(){
-		//if(!global_port || !global_notifications_port) location.reload();
-		if(new Date - last_event > 18 * 60 * 1000){
-		  frame.src = frame.src; //reload frame.
-		}
+		if(!global_port || !global_notifications_port) location.reload();
 	}, 18000);
   setInterval(function(){
     //if(login_error) location.reload();
+    
+    if(!share_visible && document.getElementById('frame') && (new Date - last_event > 4 * 1000)){ //check if it is being hosted in the bg
+      ensure_closed();
+    }
+  
+    if(new Date - last_event > 18 * 60 * 1000){
+		  frame.src = frame.src; //reload frame.
+		}
     if(new Date - birthday > 1000 * 60 * 20){
       chrome.idle.queryState(15 * 60, function(state){
         if(state == 'idle'){
@@ -347,7 +372,7 @@
         }
       })
     }
-  }, 15000);
+  }, 5000);
   drawIcon('');
   chrome.browserAction.setPopup({popup:''});
   

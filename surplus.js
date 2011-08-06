@@ -61,7 +61,7 @@ port.onDisconnect.addListener(function(){
   }, 762);
 })
 
-setInterval(function(){
+function update_status(){
   var el = document.getElementById('gbi1')
   if(document.getElementById('gbi4') || document.querySelector('a[href="//google.com/profiles"]')){
     var uid = document.getElementById('gbi4').innerText || document.querySelector('a[href="//google.com/profiles"]').innerText.trim();
@@ -81,7 +81,10 @@ setInterval(function(){
 
   scrollTo(0,0)
 
-}, 1000)
+}
+setInterval(update_status, 1000);
+
+update_status();
 
 var head = document.getElementsByTagName('head')[0], style = document.createElement('link');
 style.type = 'text/css';
