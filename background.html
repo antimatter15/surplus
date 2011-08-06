@@ -11,8 +11,31 @@
 <body>
 
 <script>
+  var furl = '';
+  if(localStorage.althost == 'yes'){
+	  furl = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  }else{
+  	furl = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  	if(localStorage.althost != 'no'){
+    	var xhr = new XMLHttpRequest();
+    	xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+    	xhr.onload = function(){
+    	  var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+    	  xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+    	  xhr.onload = function(){
+    	    var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+    	    if(iHasNotify == false && vHasNotify == true){
+    	      localStorage.althost = 'yes';
+    	      location.reload();
+    	    }
+    	  }
+    	  xhr.send()
+    	}
+    	xhr.send();
+  	}
+  }
   //document.write('<iframe id="frame" src="http://images.google.com/?extension=surplus&authuser='+(localStorage.auth_user||0)+'><'+'/iframe>');
-  document.write("<iframe id='frame'><"+"/iframe"+">");
+  document.write("<iframe id='frame' src='"+furl+"'><"+"/iframe"+">");
 </script>
 <script src="parse.js"></script>
 <script>
@@ -310,7 +333,7 @@
   var birthday = +new Date;
   
 	setTimeout(function(){
-		if(!global_port) location.reload();
+		//if(!global_port || !global_notifications_port) location.reload();
 		if(new Date - last_event > 18 * 60 * 1000){
 		  frame.src = frame.src; //reload frame.
 		}
@@ -328,27 +351,7 @@
   drawIcon('');
   chrome.browserAction.setPopup({popup:''});
   
-  if(localStorage.althost == 'yes'){
-	  frame.src = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-  }else{
-  	frame.src = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-  	
-  	var xhr = new XMLHttpRequest();
-  	xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-  	xhr.onload = function(){
-  	  var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-  	  xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-  	  xhr.onload = function(){
-  	    var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-  	    if(iHasNotify == false && vHasNotify == true){
-  	      localStorage.althost = 'yes';
-  	      location.reload();
-  	    }
-  	  }
-  	  xhr.send()
-  	}
-  	xhr.send();
-  }
+  
 </script>
 
 </body>
