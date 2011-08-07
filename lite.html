@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+  <style>
+  
+    a {
+      color: #36C;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    #container > a {
+      text-decoration: none !important;
+    }
+    #container {
+      height: 500px;
+      overflow: auto;
+    }
+    .item {
+      padding: 14px 21px 14px 21px;
+      background: #EEF0F9;
+      color: #666;
+      border-top: 1px solid #DDDFE7;
+      outline: none;
+      min-height: 30px;
+      cursor: pointer;
+    }
+    .item a {
+      color: #666;
+    }
+    
+    .item.unread a {
+      color: #36C;
+    }
+    
+    .item.unread {
+      background: #fff;
+      color: #000;
+    }
+    .item img{
+      display: inline-block;
+      float: left;
+      margin-right: 10px;
+      vertical-align: middle;
+      width: 35px;
+      height: 35px;
+    }
+    body {
+      font: normal 13px arial,sans-serif;
+      width: 440px;
+      padding: 0;
+      margin: 0;
+    }
+    .icon {
+      float: right;
+      margin: 9px 10px 0 5px;
+      display: inline-block;
+      height: 16px;
+      vertical-align: middle;
+      width: 16px;
+    }
+    .stream {
+      background: no-repeat url(img/icons.png) -83px 0;
+    }
+    .circles {
+      background: no-repeat url(img/icons.png) -100px 0;
+    }
+    .chevron {
+      background-image: url(img/chevron.png);
+      background-position: -64px 16px;
+      display: inline-block;
+      float: right;
+      margin: 10px 0;
+      width: 7px;
+      height: 13px;
+      vertical-align: middle;
+    }
+    #header {
+      padding: 18px 19px 17px 19px;
+      vertical-align: middle;
+    }
+  </style>
+  <div id="header">
+    <a href="javascript:updatelastreadtime()" style="float:right">Mark all read</a>
+    <span style="font-size:110%;font-weight:bold">Surplus Lite </span>
+  </div>
+  <div id="container">
+    <center>Loading...</center>
+  </div>
+  <script src="parse.js"></script>
+  <script>
+    if(localStorage.slitecache){
+      document.getElementById('container').innerHTML = localStorage.slitecache;
+    }
+    function load_notifications(){
+      var xhr = new XMLHttpRequest();
+      xhr.open('get', 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/notifications/getnotificationsdata', true);
+      xhr.onload = function(){
+        var n = parseNotifications(eval(xhr.responseText.substr(5))) //TODO: use something other than EVAL to parse the malformed JSON
+        document.getElementById('container').innerHTML = '';
+        for(var i = 0; i < n.length; i++){
+          var l = document.createElement('a');
+          var div = document.createElement('div');
+          div.className = 'item '+(n[i].unread?'unread':'');
+          var img = document.createElement('img');
+          img.src = n[i].pic;
+          div.appendChild(img);
+          var chevron = document.createElement('div');
+          chevron.className = 'chevron';
+          div.appendChild(chevron);
+          var icon = document.createElement('span');
+          icon.className = 'icon '+(n[i].url?'stream':'circles');
+          div.appendChild(icon);
+          var text = document.createElement('div');
+          text.innerHTML = n[i].html;
+          div.appendChild(text);
+          
+          l.target = '_blank';
+          l.href = n[i].url || 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/circles';
+          l.appendChild(div);
+          
+          document.getElementById('container').appendChild(l);
+
+        }
+        localStorage.slitecache = document.getElementById('container').innerHTML;
+      }
+      xhr.send();
+    }
+    
+    function updatelastreadtime(){
+      var bg = chrome.extension.getBackgroundPage();
+      bg.updatelastreadtime(function(){
+        load_notifications();
+        bg.manualUpdate();
+      })
+    }
+    load_notifications()
+  </script>
+</body>
+</html>

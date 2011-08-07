@@ -36,26 +36,34 @@ iframe {
 </style>
 
 <div id="reload"></div>
+
 <script>
+bg = chrome.extension.getBackgroundPage();
+
 var numTries = 0;
 window.onunload = function(){
 	chrome.extension.getBackgroundPage().update_last_closed();
 }
-
-//if(new Date - chrome.extension.getBackgroundPage().last_close < 1200){
-//  document.getElementById('reload').innerText += "Closing window. ";
-//  window.onunload = {};
-//  window.close();
-//}else{
+if(bg.low_memory){
+  bg.visible = true;
+  document.getElementById('reload').innerText += "Loading (low memory mode)... "
+  document.write("<iframe id='frame' src='"+bg.furl+"' style='display:none'><"+"/iframe"+">");
+	document.body.style.height = (bg.baseheight-15)+'px';
+	frame = document.getElementById('frame');
+	bg.frame = frame;
+	setTimeout(function(){
+	  frame.style.display = '';
+	}, 762)
+}else{
   attemptLoad();
-//}
+}
 window.onunload = function(){
 	chrome.extension.getBackgroundPage().evacuate();
 	chrome.extension.getBackgroundPage().popup_closed();
 }
 
 function attemptLoad(){
-	bg = chrome.extension.getBackgroundPage();
+	
 	bg.popup_loaded();
 	frame = bg.document.getElementById('frame');
 	numTries++;
@@ -83,7 +91,7 @@ function attemptLoad(){
 	  document.body.appendChild(frame);
 		bg.start_load();
 		console.log("Loaded")
-		document.body.style.height = (bg.baseheight-15)+'px';//(parseInt(frame.style.height) - 15) + 'px';
+		document.body.style.height = (bg.baseheight-15)+'px';
 	}
 }
 </script>

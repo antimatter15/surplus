@@ -28,7 +28,7 @@ return x[1][0].map(function(e){ //loop through every notification
   var notifyType = e[6]; //2 = photo, 1 = post
   var thingurl = e[7]?('https://plus.google.com/'+e[7][21]):null;
   var thing = (notifyType == 2 ? 'photo' : 'post');
-  thing = '<a href="'+thingurl+'">'+thing+'</a>';
+  thing = '<a href="'+thingurl+'" target=_blank>'+thing+'</a>';
   var actlist = [];
   var actions = e[2].map(function(e){ //iterate through the participants
     var code = e[1][0][1]; //retrieve the action code of the first participant in the list
@@ -61,6 +61,11 @@ return x[1][0].map(function(e){ //loop through every notification
       + ', and ' + actions.slice(-1))
     .replace(/(your|a) \{thing\}/g, 'it') //uses pronouns
   }
-  return [act.replace(/\{thing\}/g, thing)+'.', actpic]//basic sort of templating system
+  return {
+      html: act.replace(/\{thing\}/g, thing)+'.',
+      unread: e[3] - last > 0,
+      url: thingurl,
+      pic: actpic
+    }
 });
 }
