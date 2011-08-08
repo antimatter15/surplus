@@ -69,6 +69,9 @@
     .circles {
       background: no-repeat url(img/icons.png) -100px 0;
     }
+    .photo {
+      background: no-repeat url(img/icons.png) 0 0;
+    }
     .chevron {
       background-image: url(img/chevron.png);
       background-position: -64px 16px;
@@ -108,34 +111,68 @@
       var xhr = new XMLHttpRequest();
       xhr.open('get', 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/notifications/getnotificationsdata', true);
       xhr.onload = function(){
-        var n = parseNotifications(eval(xhr.responseText.substr(5))) //TODO: use something other than EVAL to parse the malformed JSON
+        try{
+          var json = eval(xhr.responseText.substr(5));
+          //TODO: use something other than EVAL to parse the malformed JSON
+          
+          var n = parseNotifications(json)
+        }catch(err){
+          var n = [
+            {
+              html: "An <b>error has occurred</b> in processing your notifications. Problems which may cause this include <b>not signing in</b> on Google+ or <b>not having access</b> to Google+.", unread: true, pic: "img/64.png"
+            },
+            {
+              html: "Error: server returned malformed JSON or was unable to parse the JSON",
+              unread: false, pic: "img/64.png"
+            },
+            {
+              html: "Verbose Javascript Error: "+err,
+              unread: false, pic: "img/64.png"
+            }
+          ]
+        } 
         document.getElementById('container').innerHTML = '';
         var unreadCount = 0;
+        console.log(n);
         for(var i = 0; i < n.length; i++){
-          (function(i){
+          (function(m){
             var l = document.createElement('a');
             var div = document.createElement('div');
-            div.className = 'item '+(n[i].unread?'unread':'');
-            if(n[i].unread) unreadCount++;
+            div.className = 'item '+(m.unread?'unread':'');
+            if(m.unread) unreadCount++;
             var img = document.createElement('img');
-            img.src = n[i].pic;
+            img.src = m.pic;
             div.appendChild(img);
             var chevron = document.createElement('div');
             chevron.className = 'chevron';
             div.appendChild(chevron);
             var icon = document.createElement('span');
-            icon.className = 'icon '+(n[i].url?'stream':'circles');
+            icon.className = 'icon ';
+            
             div.appendChild(icon);
             var text = document.createElement('div');
-            text.innerHTML = n[i].html;
+            text.innerHTML = m.html;
             div.appendChild(text);
             
             l.target = '_blank';
-            l.href = n[i].url || 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/circles';
+            
+            
+            if(m.is_photo || /photo/.test(m.html)){
+              icon.className += 'photo';
+              if(/tagged/.test(m.html))
+                l.href = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/phototags'
+            }else if(/added you/.test(m.html)){
+              l.href = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/circles';
+              icon.className += 'circles'
+            }else{
+              icon.className += 'stream';
+              if(m.url) l.href = m.url;
+            }
+            
             l.appendChild(div);
             
             document.getElementById('container').appendChild(l);
-          })(i);
+          })(n[i]);
         }
         if(unreadCount == 1) bg.updatelastreadtime();
         localStorage.slitecache = document.getElementById('container').innerHTML;

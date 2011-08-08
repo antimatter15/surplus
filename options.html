@@ -29,8 +29,17 @@
       has been <b>suspended on the grounds of merely using a pseudonym</b>. 
       If you can do anything about this, not only to rectify this one profile
       but to correct this ludicrous policy, I urge you to do so. Until then, <b>I can no longer support the Surplus extension.</b> 
-    </div> 
-    <p> -->
+    </div> -->
+
+
+  <div id="unlucky" style="padding:10px;font-size:11px;background-color:#FBE092;border-radius:4px"> 
+      A bug affecting <b>Chrome 13 on Windows</b> prevents Surplus from fully working. Because of this, <b>Surplus Lite</b> has been automatically enabled and some <b>features may not be availiable</b>. <a target=_blank href="https://github.com/antimatter15/surplus/wiki/The-Unlucky-Chrome-13">read more</a>
+    </div>
+
+    
+    <p> 
+    
+    
     
       <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no";deps();'> <label for="notif">Check to enable <b>desktop notifications</b></label> 
     </p> 
@@ -65,7 +74,7 @@
     <ul>
       <li><b>Normal Mode</b> is fully featured and fast, but is known to often consume a lot of RAM.</li>
       <li><b>Low Memory Mode</b> has all the features of Normal Mode but takes longer to load the notifications popup. </li>
-      <li><b>Ultra Low Memory Mode</b>, lacks many features of Normal Mode but consumes very little memory.</li>
+      <li><b>Ultra Low Memory Mode</b>, also known as <b>Surplus Lite</b> lacks many features of Normal Mode but consumes very little memory.</li>
     </ul>
   </label>
   </p>
@@ -109,6 +118,9 @@
         localStorage.auth_user = val;
         chrome.extension.getBackgroundPage().location.reload();
       }
+      
+      
+    if(chrome.extension.getBackgroundPage().unlucky) document.getElementById('unlucky').style.display = '';
       
       function deps(){ //handle dependancies
         for(var i = document.querySelectorAll('.notify'), k = 0; k < i.length; k++){

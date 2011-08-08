@@ -25,7 +25,9 @@ function parseNotifications(x){
 var last = x[1][1]; //or is it 2?!?!?!? 
 //2 seems to be the last time that updatelastreadtime was called
 return x[1][0].map(function(e){ //loop through every notification
+  console.log(e);
   var notifyType = e[6]; //2 = photo, 1 = post
+
   var thingurl = e[7]?('https://plus.google.com/'+e[7][21]):null;
   var thing = (notifyType == 2 ? 'photo' : 'post');
   thing = '<a href="'+thingurl+'" target=_blank>'+thing+'</a>';
@@ -65,7 +67,8 @@ return x[1][0].map(function(e){ //loop through every notification
       html: act.replace(/\{thing\}/g, thing)+'.',
       unread: e[3] - last > 0,
       url: thingurl,
-      pic: actpic
+      pic: actpic,
+      is_photo: notifyType == 2
     }
 });
 }
