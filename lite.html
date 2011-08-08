@@ -16,8 +16,8 @@
     #container > a {
       text-decoration: none !important;
     }
-    #container {
-      height: 500px;
+    #supercontainer {
+      height: 450px;
       overflow: auto;
     }
     .item {
@@ -84,12 +84,20 @@
       vertical-align: middle;
     }
   </style>
+  
   <div id="header">
     <a href="javascript:updatelastreadtime()" style="float:right">Mark all read</a>
     <span style="font-size:110%;font-weight:bold">Surplus Lite </span>
   </div>
+  <div id="supercontainer">
+  
+  <div id="unlucky" style="display:none;padding:10px;font-size:10px;background-color:#FBE092;"> 
+      A bug affecting <b>Chrome 13 on Windows</b> prevents Surplus from fully working. Because of this, <b>Surplus Lite</b> has been automatically enabled and some <b>features may not be availiable</b>. <a target=_blank href="https://github.com/antimatter15/surplus/wiki/The-Unlucky-Chrome-13">read more</a>
+    </div>
   <div id="container">
+    
     <center>Loading...</center>
+  </div>
   </div>
   <script src="parse.js"></script>
   <script>
@@ -102,42 +110,51 @@
       xhr.onload = function(){
         var n = parseNotifications(eval(xhr.responseText.substr(5))) //TODO: use something other than EVAL to parse the malformed JSON
         document.getElementById('container').innerHTML = '';
+        var unreadCount = 0;
         for(var i = 0; i < n.length; i++){
-          var l = document.createElement('a');
-          var div = document.createElement('div');
-          div.className = 'item '+(n[i].unread?'unread':'');
-          var img = document.createElement('img');
-          img.src = n[i].pic;
-          div.appendChild(img);
-          var chevron = document.createElement('div');
-          chevron.className = 'chevron';
-          div.appendChild(chevron);
-          var icon = document.createElement('span');
-          icon.className = 'icon '+(n[i].url?'stream':'circles');
-          div.appendChild(icon);
-          var text = document.createElement('div');
-          text.innerHTML = n[i].html;
-          div.appendChild(text);
-          
-          l.target = '_blank';
-          l.href = n[i].url || 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/circles';
-          l.appendChild(div);
-          
-          document.getElementById('container').appendChild(l);
-
+          (function(i){
+            var l = document.createElement('a');
+            var div = document.createElement('div');
+            div.className = 'item '+(n[i].unread?'unread':'');
+            if(n[i].unread) unreadCount++;
+            var img = document.createElement('img');
+            img.src = n[i].pic;
+            div.appendChild(img);
+            var chevron = document.createElement('div');
+            chevron.className = 'chevron';
+            div.appendChild(chevron);
+            var icon = document.createElement('span');
+            icon.className = 'icon '+(n[i].url?'stream':'circles');
+            div.appendChild(icon);
+            var text = document.createElement('div');
+            text.innerHTML = n[i].html;
+            div.appendChild(text);
+            
+            l.target = '_blank';
+            l.href = n[i].url || 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/circles';
+            l.appendChild(div);
+            
+            document.getElementById('container').appendChild(l);
+          })(i);
         }
+        if(unreadCount == 1) bg.updatelastreadtime();
         localStorage.slitecache = document.getElementById('container').innerHTML;
       }
       xhr.send();
     }
     
     function updatelastreadtime(){
-      var bg = chrome.extension.getBackgroundPage();
       bg.updatelastreadtime(function(){
         load_notifications();
         bg.manualUpdate();
       })
     }
+    var bg = chrome.extension.getBackgroundPage();
+    bg.popup_loaded();
+    onunload = function(){
+      bg.popup_closed();
+    }
+    if(bg.unlucky) document.getElementById('unlucky').style.display = '';
     load_notifications()
   </script>
 </body>

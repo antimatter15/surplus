@@ -2,26 +2,31 @@ var furl = '';
 if(localStorage.althost == 'yes'){
   furl = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
 }else{
-	furl = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-	if(localStorage.althost != 'no'){
-  	var xhr = new XMLHttpRequest();
-  	xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-  	xhr.onload = function(){
-  	  var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-  	  xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-  	  xhr.onload = function(){
-  	    var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-  	    if(iHasNotify == false && vHasNotify == true){
-  	      localStorage.althost = 'yes';
-  	      location.reload();
-  	    }
-  	  }
-  	  xhr.send()
-  	}
-  	xhr.send();
-	}
+  furl = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  if(localStorage.althost != 'no'){
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+    xhr.onload = function(){
+      var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+      xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+      xhr.onload = function(){
+        var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+        if(iHasNotify == false && vHasNotify == true){
+          localStorage.althost = 'yes';
+          location.reload();
+        }
+      }
+      xhr.send()
+    }
+    xhr.send();
+  }
 }
-var low_memory = false;
+
+var unlucky = /unlucky/.test(location.search);
+
+var ultra_low_memory = unlucky || false;
+var low_memory = ultra_low_memory || false;
+
 if(!low_memory){
   document.write("<iframe id='frame' src='"+furl+"'><"+"/iframe"+">");
 }
@@ -33,7 +38,20 @@ var frame;
 */
 
 frame = document.getElementById('frame');
-
+if(frame){
+  frame.onload = function(){
+    frame.onload = null;
+    setTimeout(function(){
+      if(!global_port){
+        console.log("FAILURE");
+        if(navigator.userAgent.indexOf('Chrome/13.') != -1){
+          var win = navigator.userAgent.indexOf('Windows') != -1;
+          if(win)location.href += "?unlucky";
+        }
+      }
+    }, 1000);
+  }
+}
 var heightstate = 3;
 var login_error = false;
 var visible = true;
@@ -44,34 +62,37 @@ var last_event = +new Date;
 
 function popup_loaded(){
   chrome.browserAction.setPopup({popup:''});
-  
 }
+
 function popup_closed(){
   setTimeout(function(){
-    chrome.browserAction.setPopup({popup:'popup.html'})
+    if(ultra_low_memory){
+      chrome.browserAction.setPopup({popup:'lite.html'})
+    }else{
+      chrome.browserAction.setPopup({popup:'popup.html'})
+    }
   },/Windows/.test(navigator.userAgent)?762:267) //762 is the feynman point in pi
-
   //i just woke up one day with the number stuck in my head
 }
 function start_load(){
-	//yay its been loaded!
-	if(!global_inner_port){
-		console.log("loaded popup and notification port not found")
-		setTimeout(function(){
-			if(!global_inner_port) location.reload();
-		}, 3141) //this is pi
-	}
-	if(!share_visible) ensure_open();
-	
+  //yay its been loaded!
+  if(!global_inner_port){
+    console.log("loaded popup and notification port not found")
+    setTimeout(function(){
+      if(!global_inner_port) location.reload();
+    }, 3141) //this is pi
+  }
+  if(!share_visible) ensure_open();
+  
 }
 function evacuate(){
   console.log("Evacuate");
-	//if(!share_visible) ensure_closed();
-	if(low_memory){
-	  frame.src = 'about:blank';
-	  frame.parentNode.removeChild(frame);
-	  delete frame;
-	  frame = null;
+  //if(!share_visible) ensure_closed();
+  if(low_memory){
+    frame.src = 'about:blank';
+    frame.parentNode.removeChild(frame);
+    delete frame;
+    frame = null;
   }else{
     console.log('restoring window')
     document.adoptNode(frame);
@@ -111,17 +132,17 @@ function open_share(){
   ensure_closed();
   shift_frame()
   share_visible = true;
-	if(localStorage.nocurrentpage == 'yes'){
-		global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
+  if(localStorage.nocurrentpage == 'yes'){
+    global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
     global_port.postMessage({action: 'share', visible: share_visible});
-	}else{
-		chrome.tabs.getSelected(null, function(tab){
-			console.log("Got current tab", tab)			
-	    global_inner_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
-	    global_port.postMessage({action: 'share', visible: share_visible});
-		})
-	}
-	
+  }else{
+    chrome.tabs.getSelected(null, function(tab){
+      console.log("Got current tab", tab)      
+      global_inner_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
+      global_port.postMessage({action: 'share', visible: share_visible});
+    })
+  }
+  
 }
 
 function close_share(){
@@ -129,7 +150,7 @@ function close_share(){
   share_visible = false;
   shift_frame()
   global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
-	global_inner_port.postMessage({action: 'sharehide'})
+  global_inner_port.postMessage({action: 'sharehide'})
   global_port.postMessage({action: 'share', visible: share_visible});
 }
 
@@ -155,12 +176,19 @@ function manualUpdate(){
 }
 
 function forceUpdate(){
-  if(global_inner_port)
+  if(global_inner_port){
     global_inner_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
-  else if(parseInt(last_recorded_number) > -1){
+  }else{
+  var xhr = new XMLHttpRequest();
+  xhr.open('get','https://plus.google.com/u/0/_/n/guc',true);
+  xhr.onload = function(){
+    handleCount(xhr.responseText);
+  }
+  xhr.send();
+  }/*else if(parseInt(last_recorded_number) > -1){
     console.log("nawt yedt")
     drawIcon(last_recorded_number);
-  }
+  }*/
 }
 var old_num = 0;
 function handleCount(text){
@@ -174,16 +202,15 @@ function handleCount(text){
   old_num = num;
 }
 
-setInterval(function(){manualUpdate()}, 20 * 1000);
 
 
 function drawIcon(num){
   num += '';
   if(localStorage.usebadge == 'yes') { 
-		chrome.browserAction.setBadgeText({ text:num });
-		chrome.browserAction.setIcon({path: 'img/classic.png'});
+    chrome.browserAction.setBadgeText({ text:num });
+    chrome.browserAction.setIcon({path: 'img/classic.png'});
   }else{
-		chrome.browserAction.setBadgeText({ text:'' });
+    chrome.browserAction.setBadgeText({ text:'' });
     var c = document.createElement('canvas').getContext('2d');
     var none = (num.replace(/[\s0]/g,'') == '');
     var img = new Image();
@@ -192,11 +219,11 @@ function drawIcon(num){
       c.drawImage(img, 0, 0);
       c.font = "bold 13px arial,sans-serif";
       c.fillStyle = none ? '#CCC' : '#fff';
-		  if(parseInt(num) > 9 || num == '9+'){
-			  c.fillText('9+', 3, 14);
-		  }else{
-      	c.fillText(num+'', 6, 14);
-		  }
+      if(parseInt(num) > 9 || num == '9+'){
+        c.fillText('9+', 3, 14);
+      }else{
+        c.fillText(num+'', 6, 14);
+      }
       chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
     }
   }
@@ -231,8 +258,8 @@ chrome.extension.onConnect.addListener(function(port) {
         login_error = msg.error;
         drawIcon("!!");
       }else{
-				if(share_visible && msg.height) frame.style.height = Math.max(msg.height+290, baseheight)+'px';
-				
+        if(share_visible && msg.height) frame.style.height = Math.max(msg.height+290, baseheight)+'px';
+        
         global_port_src = msg.src;
         if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
           setTimeout(manualUpdate, 100);
@@ -293,8 +320,8 @@ function updatelastreadtime(callback){
 function getNotifications(num){
   if(visible) return;
   num += '';
-	chrome.idle.queryState(parseInt(localStorage.idle_duration||"15") * 60, function(state){
-	if(state == 'idle') return;
+  chrome.idle.queryState(parseInt(localStorage.idle_duration||"15") * 60, function(state){
+  if(state == 'idle') return;
   if(num.replace(/[\s0]/g,'') != ''){
     if(localStorage.notify == 'yes'){
 
@@ -344,11 +371,14 @@ chrome.windows.create({
 */
 var birthday = +new Date;
 
+setInterval(function(){manualUpdate()}, 20 * 1000);
+
 setTimeout(function(){
-	if(!low_memory){
-		if(!global_port || !global_inner_port) location.reload();
-	}
+  if(!low_memory){
+    if(!global_port || !global_inner_port) location.reload();
+  }
 }, 18000);
+
 var close_tainted = false;
 setInterval(function(){
   //if(login_error) location.reload();
@@ -359,8 +389,8 @@ setInterval(function(){
     }
   
     if(new Date - last_event > 18 * 60 * 1000){
-	    frame.src = frame.src; //reload frame.
-	  }
+      frame.src = frame.src; //reload frame.
+    }
     if(new Date - birthday > 1000 * 60 * 20){
       chrome.idle.queryState(15 * 60, function(state){
         if(state == 'idle'){
@@ -373,5 +403,8 @@ setInterval(function(){
 drawIcon('');
 if(!low_memory){
   chrome.browserAction.setPopup({popup:''});
+}else if(ultra_low_memory){
+  chrome.browserAction.setPopup({popup:'lite.html'});
+  manualUpdate();
 }
 
