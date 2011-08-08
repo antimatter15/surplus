@@ -176,11 +176,12 @@ function manualUpdate(){
 }
 
 function forceUpdate(){
+  var counturl = 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc';
   if(global_inner_port){
-    global_inner_port.postMessage({action:'xhr', url:'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/n/guc'});
+    global_inner_port.postMessage({action:'xhr', url: counturl});
   }else{
   var xhr = new XMLHttpRequest();
-  xhr.open('get','https://plus.google.com/u/0/_/n/guc',true);
+  xhr.open('get',counturl,true);
   xhr.onload = function(){
     handleCount(xhr.responseText);
   }
