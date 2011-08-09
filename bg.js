@@ -23,8 +23,6 @@ if(localStorage.althost == 'yes'){
 }
 
 var unlucky = /unlucky/.test(location.search);
-
-
 var ultra_low_memory = (localStorage.mode == 'lite') || unlucky || false;
 var low_memory = ultra_low_memory || (localStorage.mode == 'lmm');
 
@@ -45,20 +43,31 @@ if(frame){
     setTimeout(function(){
       if(!global_port){
         console.log("FAILURE");
-        if(navigator.userAgent.indexOf('Chrome/13.') != -1){
-          var win = navigator.userAgent.indexOf('Windows') != -1;
-          if(win)location.href += "?unlucky";
+        if(navigator.userAgent.indexOf('Chrome/13.') != -1 && navigator.userAgent.indexOf('Windows') != -1){
+          location.href += "?unlucky";
+        }else if(!/retry/.test(location.search)){
+          location.href += "?retry";
+        }else{
+          location.href += "?unlucky";
         }
       }
     }, 1000);
   }
 }
-var heightstate = 3;
+var heightstate = 0;
 var login_error = false;
 var visible = true;
 var share_visible = false;
 var current_user = '';
 var last_event = +new Date;
+var global_port;
+var global_port_src = '';
+var global_inner_port;
+var baseheight = 500;
+
+function shift_frame(){
+  frame.style.height = (baseheight + ((heightstate += 0.01)))+'px'; //hopefully users dont notice 7px diffs
+}
 
 
 function popup_loaded(){
@@ -66,6 +75,8 @@ function popup_loaded(){
 }
 
 function popup_closed(){
+  heightstate = 0;
+  
   setTimeout(function(){
     if(ultra_low_memory){
       chrome.browserAction.setPopup({popup:'lite.html'})
@@ -110,14 +121,7 @@ function evacuate(){
     close_tainted = true;
   }
 }
-var global_port;
-var global_port_src = '';
-var global_inner_port;
-var baseheight = 500;
 
-function shift_frame(){
-  frame.style.height = (baseheight + ((heightstate++ % 7) - 3))+'px'; //hopefully users dont notice 3px diffs
-}
 
 
 
@@ -386,11 +390,11 @@ var birthday = +new Date;
 
 setInterval(function(){manualUpdate()}, 20 * 1000);
 
-setTimeout(function(){
+/*setTimeout(function(){
   if(!low_memory){
     if(!global_port || !global_inner_port) location.reload();
   }
-}, 18000);
+}, 18000);*/
 
 var close_tainted = false;
 setInterval(function(){
