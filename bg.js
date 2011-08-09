@@ -24,8 +24,9 @@ if(localStorage.althost == 'yes'){
 
 var unlucky = /unlucky/.test(location.search);
 
-var ultra_low_memory = unlucky || false;
-var low_memory = ultra_low_memory || false;
+
+var ultra_low_memory = (localStorage.mode == 'lite') || unlucky || false;
+var low_memory = ultra_low_memory || (localStorage.mode == 'lmm');
 
 if(!low_memory){
   document.write("<iframe id='frame' src='"+furl+"'><"+"/iframe"+">");
@@ -76,7 +77,7 @@ function popup_closed(){
 }
 function start_load(){
   //yay its been loaded!
-  if(!global_inner_port){
+  if(!global_inner_port && !low_memory){
     console.log("loaded popup and notification port not found")
     setTimeout(function(){
       if(!global_inner_port) location.reload();
@@ -147,6 +148,7 @@ function open_share(){
   }else{
     chrome.tabs.getSelected(null, function(tab){
       console.log("Got current tab", tab)      
+      
       global_inner_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
       global_port.postMessage({action: 'share', visible: share_visible});
     })
@@ -410,8 +412,8 @@ setInterval(function(){
 drawIcon('');
 if(!low_memory){
   chrome.browserAction.setPopup({popup:''});
-}else if(ultra_low_memory){
-  chrome.browserAction.setPopup({popup:'lite.html'});
+}else{
   manualUpdate();
+  if(ultra_low_memory) chrome.browserAction.setPopup({popup:'lite.html'});
 }
 

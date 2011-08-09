@@ -44,8 +44,11 @@ var numTries = 0;
 window.onunload = function(){
 	chrome.extension.getBackgroundPage().update_last_closed();
 }
-if(bg.low_memory){
-  bg.visible = true;
+if(bg.login_error){
+  document.getElementById('reload').innerText += bg.login_error + " (User "+(localStorage.auth_user||0)+(bg.current_user?(' '+bg.current_user):'')+")";
+}else if(bg.low_memory){
+  bg.visible = false;
+  bg.share_visible = false;
   document.getElementById('reload').innerText += "Loading (low memory mode)... "
   document.write("<iframe id='frame' src='"+bg.furl+"' style='display:none'><"+"/iframe"+">");
 	document.body.style.height = (bg.baseheight-15)+'px';
@@ -53,6 +56,7 @@ if(bg.low_memory){
 	bg.frame = frame;
 	setTimeout(function(){
 	  frame.style.display = '';
+    bg.ensure_open();
 	}, 762)
 }else{
   attemptLoad();
@@ -69,21 +73,17 @@ function attemptLoad(){
 	numTries++;
 	//document.getElementById('reload').style.display = '';
   
-	if(!frame || bg.login_error){
-	  if(!bg.login_error){
-	    document.getElementById('reload').innerText += "Loading ("+numTries+")... "
-			if(numTries < 15){
-			  setTimeout(attemptLoad, 100);
-			  return;
-		  }
-	    document.getElementById('reload').innerText += "Document is missing. Please try again in a few seconds."
-      chrome.extension.getBackgroundPage().location.reload();
-      setTimeout(function(){
-        window.close()
-      }, 1500)
-	  }else{
-	    document.getElementById('reload').innerText += bg.login_error + " (User "+(localStorage.auth_user||0)+(bg.current_user?(' '+bg.current_user):'')+")";
-	  }
+	if(!frame){
+    document.getElementById('reload').innerText += "Loading ("+numTries+")... "
+    if(numTries < 15){
+      setTimeout(attemptLoad, 100);
+      return;
+    }
+    document.getElementById('reload').innerText += "Document is missing. Please try again in a few seconds."
+    chrome.extension.getBackgroundPage().location.reload();
+    setTimeout(function(){
+      window.close()
+    }, 1500)
 	  //document.getElementById('reload').style.display = '';
 	}else{
 	  document.getElementById('reload').innerText += "Loaded."

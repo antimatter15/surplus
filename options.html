@@ -53,7 +53,7 @@
       <input type="checkbox" id="notifyread" onchange='localStorage.notifyread=this.checked?"yes":"no"'> <label for="notifyread">Automatically mark <b>notifications as read</b> when desktop notifications are displayed.</label>
     </p>
 
-      <p>
+      <p class='smartshare'>
       <input type="checkbox" id="smartshare" onchange='localStorage.smartshare=this.checked?"yes":"no";'> <label for="smartshare">Check to enable the <b>Smart Share</b> feature, where clicking the Surplus button automatically opens the <b>sharing panel</b> if no notifications are unread.</label>
     </p>
 		
@@ -61,24 +61,24 @@
       <p>
       <input type="checkbox" id="usebadge" onchange='localStorage.usebadge=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload();'> <label for="usebadge">Use classic <b>Google+ icon</b> and badge</label>
     </p>
-		<p> 
+		<p class="lite"> 
       <input type="checkbox" id="nocurrentpage" onchange='localStorage.nocurrentpage=this.checked?"yes":"no"'> <label for="nocurrentpage">If checked, Surplus will <b>not automatically add the current page's URL</b> to the shared link field</label> 
     </p>
-<p> 
+<p class="lite"> 
       <input type="checkbox" id="althost" onchange='localStorage.althost=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload()'> <label for="althost">Use Google Video instead of Google Images as the <b>notifications frame host</b> (Suggested if "User does not have Google+" error occurs).</label> 
     </p>     
  <hr> 
 
   <p>
-  <select id="mode">
-    <option>Normal Mode</option>
-    <option>Low Memory Mode</option>
-    <option>Ultra Low Memory Mode</option>
+  <select id="mode" onchange="localStorage.mode=this.value;chrome.extension.getBackgroundPage().location.reload();deps();">
+    <option value="normal">Normal Mode</option>
+    <option value="lmm">Low Memory Mode</option>
+    <option value="lite">Ultra Low Memory Mode</option>
   </select>
   <label for="mode">
     <ul>
       <li><b>Normal Mode</b> is fully featured and fast, but is known to often consume a lot of RAM.</li>
-      <li><b>Low Memory Mode</b> has all the features of Normal Mode but takes longer to load the notifications popup. </li>
+      <li><b>Low Memory Mode</b> has most of the features of Normal Mode but takes longer to load the notifications popup. </li>
       <li><b>Ultra Low Memory Mode</b>, also known as <b>Surplus Lite</b> lacks many features of Normal Mode but consumes very little memory.</li>
     </ul>
   </label>
@@ -91,7 +91,7 @@
       <input type="number" value=0 min=1 max=999 id="dismiss"  oninput="localStorage.dismiss=this.value"> <label for="dismiss">Notifications <b>automatic dismiss time</b> in seconds.</label> 
     </p> 
     <p id="ugly"> 
-      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" oninput="change_user(this.value)"> <label for="moar">Switch Current <b>Authenticated User</b> (0 means the first logged in account, 1 for the second, 2 for the third and so on)</label>
+      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" onchange="change_user(this.value)"> <label for="moar">Switch Current <b>Authenticated User</b> (0 means the first logged in account, 1 for the second, 2 for the third and so on)</label>
 
       </p> 
     <p id="pretty" style='display:none'>
@@ -116,6 +116,8 @@
       document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
       document.getElementById('smartshare').checked = localStorage.smartshare != 'no'; 
       document.getElementById('nocurrentpage').checked = localStorage.nocurrentpage == 'yes';
+      document.getElementById('mode').value = localStorage.mode || 'normal';
+
       document.getElementById('althost').checked = localStorage.althost == 'yes';
 			document.getElementById('idle_duration').value = parseInt(localStorage.idle_duration || '15')
       
@@ -132,7 +134,14 @@
           var e = i[k];          
           e.style.display = (localStorage.notify == 'yes')?'':'none';
         }
+        for(var i = document.querySelectorAll('.lite'), k = 0; k < i.length; k++){
+          var e = i[k];          
+          e.style.display = (localStorage.mode == 'lite')?'none':'';
+        }
+        document.querySelector('.smartshare').style.display = (localStorage.mode == 'lmm' || localStorage.mode == 'lite')?'none':'';
       }
+      
+
       
       deps();
       
