@@ -269,7 +269,7 @@ chrome.extension.onConnect.addListener(function(port) {
         login_error = msg.error;
         drawIcon("!!");
       }else{
-        if(share_visible && msg.height) frame.style.height = Math.max(msg.height+290, baseheight)+'px';
+        if(share_visible && msg.height) frame.style.height = Math.max(msg.height+300, baseheight)+'px';
         
         global_port_src = msg.src;
         if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
