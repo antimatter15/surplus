@@ -30,13 +30,7 @@ if(!low_memory){
   document.write("<iframe id='frame' src='"+furl+"'><"+"/iframe"+">");
 }
 
-var frame;
-/*
-  This used to be a fairly simple bit of code, but then I added
-  stuff with very little forethought. Now it's a mess.
-*/
-
-frame = document.getElementById('frame');
+var frame = document.getElementById('frame');
 if(frame){
   frame.onload = function(){
     frame.onload = null;
@@ -64,6 +58,13 @@ var global_port;
 var global_port_src = '';
 var global_inner_port;
 var baseheight = 525;
+var connect_times = 0;
+var last_recorded_number = -1;
+var last_recorded_time = +new Date;
+var last_updated_time = 0;
+var update_queued = false;
+var old_num = 0;
+
 
 function shift_frame(){
   frame.style.height = (baseheight + ((heightstate += 0.01)))+'px'; //hopefully users dont notice 7px diffs
@@ -177,8 +178,6 @@ function ensure_closed(){
   ensure_popup(false);
 }
 
-var last_updated_time = 0;
-var update_queued = false;
 function manualUpdate(){
   if(new Date - last_updated_time > 3000){
     forceUpdate();
@@ -203,7 +202,7 @@ function forceUpdate(){
     xhr.send();
   }
 }
-var old_num = 0;
+
 function handleCount(text){
   var num = JSON.parse(text.substr(4))[1];
   drawIcon(num);
@@ -241,10 +240,6 @@ function drawIcon(num){
     }
   }
 }
-var connect_times = 0;
-
-var last_recorded_number = -1;
-var last_recorded_time = +new Date;
 
 chrome.extension.onConnect.addListener(function(port) {
   if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
@@ -317,23 +312,21 @@ chrome.extension.onConnect.addListener(function(port) {
   }
 });
 
-
-function updatelastreadtime(callback){
+function updatelastreadtime(callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open('get', 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/notifications/all', true);
-  xhr.onload = function(){
+  xhr.open('get', 'https://plus.google.com/u/' + (localStorage.auth_user || 0) + '/notifications/all', true);
+  xhr.onload = function() {
     var code = xhr.responseText.match(/"https:\/\/www\.google\.com\/csi"\,"([A-Za-z0-9\-_:]+)"\,\,\,/)[1];
     var xhr2 = new XMLHttpRequest();
-    xhr2.onload = function(){
-      if(callback) callback();
+    xhr2.onload = function() {
+      if (callback) callback();
     }
-    xhr2.open('post', 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/_/notifications/updatelastreadtime', true);
+    xhr2.open('post', 'https://plus.google.com/u/' + (localStorage.auth_user || 0) + '/_/notifications/updatelastreadtime', true);
     xhr2.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-    xhr2.send('time='+(1000*new Date)+'&at='+code);
+    xhr2.send('time=' + (1000 * new Date) + '&at=' + code);
   }
   xhr.send();
 }
-
 function getNotifications(num){
   if(visible) return;
   num += '';
@@ -361,44 +354,39 @@ function getNotifications(num){
 }
 var showqueue = [];
 var notify_message = '', notify_image = '';
-function showMessage(){
+function showMessage() {
   var msg = showqueue.shift();
-  if(msg){
-    if(msg[0] == notify_message) return showMessage(); //dont repeat messages
-    
-    if(localStorage.notify_sound == 'yes') (new Audio("notify.ogg")).play();
-    
+  if (msg) {
+    if (msg[0] == notify_message) return showMessage(); //dont repeat messages
+    if (localStorage.notify_sound == 'yes')(new Audio("notify.ogg")).play();
+
     window.notify_message = msg.html;
     window.notify_image = msg.pic;
     var notification = window.webkitNotifications.createHTMLNotification('notification.html');;
 
     notification.show();
-    setTimeout(function(){
+    setTimeout(function() {
       notification.cancel();
     }, parseInt(localStorage.autodismiss || 5) * 1000);
   }
 }
 setInterval(showMessage, 6000); //seems like a good duration
-/*
-chrome.windows.create({
-    url: url,
-    width: width,
-    height: height,
-    type: 'popup'})
-*/
+
+function chromeOS() {
+  chrome.windows.create({
+    url: "popup.html",
+    width: 440,
+    height: baseheight,
+    type: 'popup'
+  })
+}
+
 var birthday = +new Date;
 
 setInterval(function(){manualUpdate()}, 20 * 1000);
 
-/*setTimeout(function(){
-  if(!low_memory){
-    if(!global_port || !global_inner_port) location.reload();
-  }
-}, 18000);*/
-
 var close_tainted = false;
 setInterval(function(){
-  //if(login_error) location.reload();
   if(!low_memory){
     if(close_tainted && !share_visible && document.getElementById('frame') && (new Date - last_event > 4 * 1000)){ //check if it is being hosted in the bg
       ensure_closed();
@@ -422,6 +410,10 @@ if(!low_memory){
   chrome.browserAction.setPopup({popup:''});
 }else{
   manualUpdate();
-  if(ultra_low_memory) chrome.browserAction.setPopup({popup:'lite.html'});
+  if(ultra_low_memory){
+    chrome.browserAction.setPopup({popup:'lite.html'});
+  }else{
+    chrome.browserAction.setPopup({popup:'popup.html'});
+  }
 }
 
