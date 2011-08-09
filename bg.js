@@ -63,7 +63,7 @@ var last_event = +new Date;
 var global_port;
 var global_port_src = '';
 var global_inner_port;
-var baseheight = 500;
+var baseheight = 525;
 
 function shift_frame(){
   frame.style.height = (baseheight + ((heightstate += 0.01)))+'px'; //hopefully users dont notice 7px diffs
