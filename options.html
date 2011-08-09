@@ -32,7 +32,7 @@
     </div> -->
 
 
-  <div id="unlucky" style="padding:10px;font-size:11px;background-color:#FBE092;border-radius:4px"> 
+  <div id="unlucky" style="display:none;padding:10px;font-size:11px;background-color:#FBE092;border-radius:4px"> 
       A bug affecting <b>Chrome 13 on Windows</b> prevents Surplus from fully working. Because of this, <b>Surplus Lite</b> has been automatically enabled and some <b>features may not be availiable</b>. <a target=_blank href="https://github.com/antimatter15/surplus/wiki/The-Unlucky-Chrome-13">read more</a>
     </div>
 
@@ -48,8 +48,13 @@
       <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable <b>notification sounds</b></label> 
     </p> 
 
+    
     <p  class="notify">
       <input type="checkbox" id="notifyread" onchange='localStorage.notifyread=this.checked?"yes":"no"'> <label for="notifyread">Automatically mark <b>notifications as read</b> when desktop notifications are displayed.</label>
+    </p>
+
+      <p>
+      <input type="checkbox" id="smartshare" onchange='localStorage.smartshare=this.checked?"yes":"no";'> <label for="smartshare">Check to enable the <b>Smart Share</b> feature, where clicking the Surplus button automatically opens the <b>sharing panel</b> if no notifications are unread.</label>
     </p>
 		
 
@@ -108,8 +113,8 @@
       document.getElementById('notif').checked = localStorage.notify == 'yes';
       document.getElementById('usebadge').checked = localStorage.usebadge == 'yes';
       document.getElementById('sounds').checked = localStorage.notify_sound == 'yes';
-      //document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
- 
+      document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
+      document.getElementById('smartshare').checked = localStorage.smartshare != 'no'; 
       document.getElementById('nocurrentpage').checked = localStorage.nocurrentpage == 'yes';
       document.getElementById('althost').checked = localStorage.althost == 'yes';
 			document.getElementById('idle_duration').value = parseInt(localStorage.idle_duration || '15')

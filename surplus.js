@@ -14,21 +14,30 @@ function toggle(){
 function toggleShare(){
   log("Toggling Share Button");
   document.getElementById('gbg3').dispatchEvent(mouse());
-
 }
 
-
+function is_activated(index){
+  var els = [].slice.call(
+    document.querySelectorAll(".gbtc")[1]
+    .querySelectorAll(".gbt")
+  ,0)
+    .filter(function(e){
+      return e.firstChild.className != 'gbts' //parseInt(getComputedStyle(e).width) > 1
+  });
+  return els[index].className.split(' ').indexOf("gbto") != -1;
+}
 
 function ensure_share(state){
   var gbwc = document.querySelector('#gbwc');
-  var isopen = gbwc ? (gbwc.style.display != 'none') : false;
+  var isopen = is_activated(2); //gbwc ? (!!(gbwc.style.display != 'none' && gbwc.style.height && is_activated(2))) : false;
+  log("Checking share visibility state", is_activated(2), gbwc, isopen, state);
   if(isopen != state) toggleShare();
 }
 
 function ensure(state){
   var gbwc = document.querySelector('#gbwc');
-  var isopen = gbwc ? (!!(gbwc.style.display != 'none' && gbwc.style.height)) : false;
-  log("Checking visible state", gbwc, isopen, state);
+  var isopen = is_activated(1); //gbwc ? (!!(gbwc.style.display != 'none' && gbwc.style.height && is_activated(1))) : false;
+  log("Checking visible state", is_activated(1), gbwc, isopen, state);
   if(isopen != state) toggle();
 }
 

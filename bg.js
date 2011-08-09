@@ -82,8 +82,17 @@ function start_load(){
       if(!global_inner_port) location.reload();
     }, 3141) //this is pi
   }
-  if(!share_visible) ensure_open();
-  
+  if(localStorage.smartshare != 'no'){
+    if(old_num == 0){
+      open_share();
+    }else if(!share_visible){
+      ensure_open();
+    }
+  }else{
+    if(!share_visible){
+      ensure_open();
+    }
+  }
 }
 function evacuate(){
   console.log("Evacuate");
@@ -180,16 +189,13 @@ function forceUpdate(){
   if(global_inner_port){
     global_inner_port.postMessage({action:'xhr', url: counturl});
   }else{
-  var xhr = new XMLHttpRequest();
-  xhr.open('get',counturl,true);
-  xhr.onload = function(){
-    handleCount(xhr.responseText);
+    var xhr = new XMLHttpRequest();
+    xhr.open('get',counturl,true);
+    xhr.onload = function(){
+      handleCount(xhr.responseText);
+    }
+    xhr.send();
   }
-  xhr.send();
-  }/*else if(parseInt(last_recorded_number) > -1){
-    console.log("nawt yedt")
-    drawIcon(last_recorded_number);
-  }*/
 }
 var old_num = 0;
 function handleCount(text){

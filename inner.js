@@ -14,6 +14,34 @@ document.addEventListener("keydown", function(e){
   }
 },true)
 
+function setShareURL(url){
+  (function(){
+    if(document.querySelector("span[title='Add link']").offsetHeight){
+      try{
+        [].slice.call(document.querySelectorAll("#summary-view>div")[0].querySelectorAll('div[tabindex="0"]'),0)
+          .filter(function(e){return(getComputedStyle(e).right=='11px')})[0].dispatchEvent(mouse());
+      }catch(err){}
+      setTimeout(function(){
+        document.querySelector("span[title='Add link']").dispatchEvent(mouse());
+        var evt = document.createEvent("KeyboardEvent");
+        evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
+        document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
+        document.querySelector('td>div>input[type=text]').value = url;
+        if(/https?:/.test(url)){
+          setTimeout(function(){
+            var addbtn = document.querySelector('td>div div[role=button]');
+            addbtn.dispatchEvent(mouse('down'));
+            addbtn.dispatchEvent(mouse('up'));
+            setTimeout(function(){
+              document.querySelector("div[contenteditable='plaintext-only']").focus()
+            }, 100);
+          }, 100)
+        }
+      }, 100);
+    }else setTimeout(arguments.callee, 100);
+  })()
+}
+
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
   if(msg.action == 'xhr'){
@@ -27,28 +55,7 @@ port.onMessage.addListener(function(msg){
     sharevisible = msg.value;
     console.log("Set Sharevisible to", sharevisible);
     if(sharevisible == true && msg.current_url){
-       (function(){
-          if(document.querySelector("span[title='Add link']").offsetHeight){
-            try{
-              [].slice.call(document.querySelectorAll("#summary-view>div")[0].querySelectorAll('div[tabindex="0"]'),0)
-                .filter(function(e){return(getComputedStyle(e).right=='11px')})[0].dispatchEvent(mouse());
-            }catch(err){}
-            setTimeout(function(){
-              document.querySelector("span[title='Add link']").dispatchEvent(mouse());
-              var evt = document.createEvent("KeyboardEvent");
-              evt.initEvent ("keypress", true, true, window, 0, 0, 0, 0, 0, 42)
-              document.querySelector('td>div>input[type=text]').dispatchEvent(evt);
-              document.querySelector('td>div>input[type=text]').value = msg.current_url;
-              if(/https?:/.test(msg.current_url)){
-                setTimeout(function(){
-                  var addbtn = document.querySelector('td>div div[role=button]');
-                  addbtn.dispatchEvent(mouse('down'));
-                  addbtn.dispatchEvent(mouse('up'));
-                }, 100)
-              }
-            }, 100);
-          }else setTimeout(arguments.callee, 100);
-        })()
+      setShareURL(msg.current_url);
     }
   }else if(msg.action == "sharehide"){
     console.log("Temporarily Hiding Share box");
@@ -60,6 +67,31 @@ port.onMessage.addListener(function(msg){
   }else if(msg.action == 'accept'){
     console.log('Recieved acceptance letter.');
     
+    var share = document.getElementById('summary-view').firstChild;
+    share.style.padding = '0px';
+    share.style.paddingLeft = '20px';
+    share.style.paddingRight = '20px';
+    
+    var reminder = document.createElement('div');
+    //reminder.style.marginTop = '14px';
+    reminder.style.padding = '18px 19px 17px 0px';
+    
+    //reminder.innerHTML = "<b>Like Surplus?</b> Remember to <a href='javascript:void(0)' id='sharesurplus'>share</a> it with your circles :)";
+    //share.appendChild(reminder);
+    reminder.innerHTML = '<a href="javascript:void(0)" id="surplusback"><span style="font-size:110%;font-weight:bold">&#8249; Back to Notifications</span></a> <span style="float:right">Remember to <a href="javascript:void(0)" id="sharesurplus">share</a> Surplus!</span>';
+    share.insertBefore(reminder, share.firstChild);
+    document.getElementById('sharesurplus').onclick = function(){
+      setShareURL("https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf");
+    }
+    document.getElementById('surplusback').onclick = function(){
+      [].slice.call(
+        document.querySelector('#summary-view')
+        .firstChild
+        .querySelectorAll('div>div>div>div>div>div')
+      ,0).filter(function(e){
+        return getComputedStyle(e).height == '9px'
+      })[0].dispatchEvent(mouse());
+    }
     var div = document.querySelector("a[href$='/notifications/all']")
       .parentNode
       .querySelector("div");
@@ -75,7 +107,6 @@ port.onMessage.addListener(function(msg){
       var views = document.querySelectorAll("#summary-view>div");
       if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
         port.postMessage({action: "sharevisible", value: false})
-       
       }
     }
     setInterval(check_visible, 500)
