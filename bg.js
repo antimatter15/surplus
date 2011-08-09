@@ -86,7 +86,7 @@ function start_load(){
   if(localStorage.smartshare != 'no'){
     if(old_num == 0){
       open_share();
-    }else if(!share_visible){
+    }else{
       ensure_open();
     }
   }else{
@@ -240,13 +240,11 @@ function drawIcon(num){
 var connect_times = 0;
 
 var last_recorded_number = -1;
-var last_recorded_time = 0;
+var last_recorded_time = +new Date;
 
 chrome.extension.onConnect.addListener(function(port) {
   if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
-    setTimeout(function(){
-      chrome.browserAction.setPopup({popup:'popup.html'});
-    }, 762);
+    
     console.log("Initialized new Sandbar Port", port);
     global_port = port;
     global_port_src = '';
@@ -284,6 +282,10 @@ chrome.extension.onConnect.addListener(function(port) {
       if(global_port_src){
         //console.log('found global port source', global_port_src, port.name);
         if(global_port_src == port.name){
+          setTimeout(function(){
+            chrome.browserAction.setPopup({popup:'popup.html'});
+            setTimeout(manualUpdate, 100);
+          }, 762);
           console.log("Initialized new Notifications Port", port);
           global_inner_port = port;
           port.postMessage({action: 'accept', user: current_user});
@@ -293,7 +295,9 @@ chrome.extension.onConnect.addListener(function(port) {
             }else if(msg.action == 'share'){
               open_share();
             }else if(msg.action == 'profile'){
-              chrome.tabs.create({url: 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/me'})
+              chrome.tabs.create({url: 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/'})
+            }else if(msg.action == 'shownotifications'){
+              ensure_open();
             }else if(msg.action == 'sharevisible' && msg.value == false){
               if(share_visible){
                 console.log("Auto Reopen Notifications");

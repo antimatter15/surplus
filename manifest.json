@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "3.4.1",
+  "version": "3.4.4",
   "description": "Google Plus Integration for Chrome",
   "background_page": "background.html",
   "icons": {
@@ -23,6 +23,7 @@
 									"https://*.google.com/*extension=surplus*"
 									],
       "js": ["surplus.js"],
+      "run_at": "document_end",
       "all_frames": true
     },
     {

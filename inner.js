@@ -14,9 +14,11 @@ document.addEventListener("keydown", function(e){
   }
 },true)
 
-function setShareURL(url){
+function setShareURL(url, force){
+  
   (function(){
-    if(document.querySelector("span[title='Add link']").offsetHeight){
+    if(document.querySelector("div[contenteditable='plaintext-only']") && document.querySelector("span[title='Add link']").offsetHeight){
+      if(!force && document.querySelector("div[contenteditable='plaintext-only']").innerText.trim() != '') return;
       try{
         [].slice.call(document.querySelectorAll("#summary-view>div")[0].querySelectorAll('div[tabindex="0"]'),0)
           .filter(function(e){return(getComputedStyle(e).right=='11px')})[0].dispatchEvent(mouse());
@@ -73,25 +75,25 @@ port.onMessage.addListener(function(msg){
     share.style.paddingRight = '20px';
     
     var reminder = document.createElement('div');
-    //reminder.style.marginTop = '14px';
-    reminder.style.padding = '18px 19px 17px 0px';
+    reminder.style.padding = '18px 2px 17px 0px';
     
-    //reminder.innerHTML = "<b>Like Surplus?</b> Remember to <a href='javascript:void(0)' id='sharesurplus'>share</a> it with your circles :)";
-    //share.appendChild(reminder);
-    reminder.innerHTML = '<a href="javascript:void(0)" id="surplusback"><span style="font-size:110%;font-weight:bold">&#8249; Back to Notifications</span></a> <span style="float:right">Remember to <a href="javascript:void(0)" id="sharesurplus">share</a> Surplus!</span>';
+    reminder.innerHTML = '<a href="javascript:void(0)" id="surplusback"><span style="font-size:110%;font-weight:bold">&#8249; Back to Notifications</span></a> <span style="float:right">Remember to <a href="javascript:void(0)" id="sharesurplus">share</a> Surplus! <iframe style="margin-bottom: -3px;height:15px;width:24px;border:0" src="'+chrome.extension.getURL('plusone.html')+'"></iframe></span>';
     share.insertBefore(reminder, share.firstChild);
     document.getElementById('sharesurplus').onclick = function(){
-      setShareURL("https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf");
+      setShareURL("https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf", true);
     }
     document.getElementById('surplusback').onclick = function(){
-      [].slice.call(
+      /*[].slice.call(
         document.querySelector('#summary-view')
         .firstChild
         .querySelectorAll('div>div>div>div>div>div')
       ,0).filter(function(e){
         return getComputedStyle(e).height == '9px'
-      })[0].dispatchEvent(mouse());
+      })[0].dispatchEvent(mouse());*/
+      port.postMessage({action: 'shownotifications'})
     }
+    
+  
     var div = document.querySelector("a[href$='/notifications/all']")
       .parentNode
       .querySelector("div");
@@ -100,7 +102,6 @@ port.onMessage.addListener(function(msg){
       port.postMessage({action: 'share'})
     }
     document.getElementById('usersettings').onclick = function(){
-      //do something
       port.postMessage({action: 'profile'})
     }
     function check_visible(){

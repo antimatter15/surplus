@@ -28,7 +28,7 @@ return x[1][0].map(function(e){ //loop through every notification
   console.log(e);
   var notifyType = e[6]; //2 = photo, 1 = post
 
-  var thingurl = e[7]?('https://plus.google.com/'+e[7][21]):null;
+  var thingurl = e[7]?('https://plus.google.com/u/'+(localStorage.auth_user||0)+'/'+e[7][21]):null;
   var thing = (notifyType == 2 ? 'photo' : 'post');
   thing = '<a href="'+thingurl+'" target=_blank>'+thing+'</a>';
   var actlist = [];
@@ -40,7 +40,7 @@ return x[1][0].map(function(e){ //loop through every notification
       //Profile Pic k[2][2]
       //User ID k[2][3]
       //Gender k[2][4]
-      var profile = 'https://profiles.google.com'+k[2][1];
+      var profile = 'https://profiles.google.com/'+k[2][1];
       var pic = k[2][2];
       actlist.push(k);
       return '<a href="'+profile+'" target=_blank '+((k[3]-last>0)?'style="font-weight:bold"':'')+'>'+k[2][0]+'</a>';

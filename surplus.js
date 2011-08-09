@@ -30,14 +30,14 @@ function is_activated(index){
 function ensure_share(state){
   var gbwc = document.querySelector('#gbwc');
   var isopen = is_activated(2); //gbwc ? (!!(gbwc.style.display != 'none' && gbwc.style.height && is_activated(2))) : false;
-  log("Checking share visibility state", is_activated(2), gbwc, isopen, state);
+  log("Checking share visibility state", is_activated(2), isopen, state);
   if(isopen != state) toggleShare();
 }
 
 function ensure(state){
   var gbwc = document.querySelector('#gbwc');
   var isopen = is_activated(1); //gbwc ? (!!(gbwc.style.display != 'none' && gbwc.style.height && is_activated(1))) : false;
-  log("Checking visible state", is_activated(1), gbwc, isopen, state);
+  log("Checking visible state", is_activated(1), isopen, state);
   if(isopen != state) toggle();
 }
 
