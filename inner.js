@@ -58,6 +58,19 @@ port.onMessage.addListener(function(msg){
     console.log("Set Sharevisible to", sharevisible);
     if(sharevisible == true && msg.current_url){
       setShareURL(msg.current_url);
+      var el = document.getElementById('plusoneform');
+      if(el) el.parentNode.removeChild(el);
+      setTimeout(function(){
+        var iframe = document.createElement('iframe');
+        iframe.id = 'plusoneform';
+        iframe.style.border = '0';
+        iframe.style.width = '106px';
+        iframe.style.height = '24px';
+        iframe.src = chrome.extension.getURL('plusone.html')+'?'+encodeURIComponent(msg.current_url);
+        var blag = document.getElementById('summary-view').firstChild.childNodes[1];
+        blag.insertBefore(iframe, blag.lastChild);
+        iframe.style['float'] = 'right';
+      }, 762);
     }
   }else if(msg.action == "sharehide"){
     console.log("Temporarily Hiding Share box");
@@ -97,9 +110,13 @@ port.onMessage.addListener(function(msg){
     var div = document.querySelector("a[href$='/notifications/all']")
       .parentNode
       .querySelector("div");
-    div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 8px;display:inline'>Share</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='usersettings'>"+msg.user+"</span>";
+    div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;width:16px;height:16px;padding:3px 8px;display:inline'>Share</div> <div id='reloadbutton' style='cursor:pointer;background: url(\""+chrome.extension.getURL('img/view-refresh.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline'></div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='usersettings'>"+msg.user+"</span>";
+    
     document.getElementById('sharebutton').onclick = function(){
       port.postMessage({action: 'share'})
+    }
+    document.getElementById('reloadbutton').onclick = function(){
+      port.postMessage({action: 'reload'})
     }
     document.getElementById('usersettings').onclick = function(){
       port.postMessage({action: 'profile'})

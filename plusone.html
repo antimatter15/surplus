@@ -4,15 +4,31 @@ body {
   margin: 0;
   overflow:hidden;
 }
-</style>
-<!-- Place this tag where you want the +1 button to render -->
-<g:plusone size="small" count="false" href="https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf"></g:plusone>
 
-<!--  Place this tag after the last plusone tag -->
+#plusone {
+  float: right;
+}
+</style>
+
+<div id="plusone-div"></div>
+
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js">
+  {"parsetags": "explicit"}
+</script>
+
 <script type="text/javascript">
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
+if(location.search){
+  var url = decodeURIComponent(location.search.slice(1))
+  gapi.plusone.render("plusone-div", {
+    size: "standard",
+    count: "true",
+    href: /chrome-extension/.test(url)?'https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf':url
+  })
+}else{
+  gapi.plusone.render("plusone-div", {
+    size: "small",
+    count: "false",
+    href: "https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf"
+  })
+}
 </script>

@@ -25,7 +25,6 @@ if(localStorage.althost == 'yes'){
 var unlucky = /unlucky/.test(location.search);
 var ultra_low_memory = (localStorage.mode == 'lite') || unlucky || false;
 var low_memory = ultra_low_memory || (localStorage.mode == 'lmm');
-
 if(!low_memory){
   document.write("<iframe id='frame' src='"+furl+"'><"+"/iframe"+">");
 }
@@ -45,7 +44,7 @@ if(frame){
           location.href += "?unlucky";
         }
       }
-    }, 1000);
+    }, 2000);
   }
 }
 var heightstate = 0;
@@ -295,6 +294,12 @@ chrome.extension.onConnect.addListener(function(port) {
               open_share();
             }else if(msg.action == 'profile'){
               chrome.tabs.create({url: 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/'})
+            }else if(msg.action == 'reload'){
+              frame.src = frame.src;
+              frame.style.visibility = 'hidden';
+              setTimeout(function(){
+                frame.style.visibility = '';
+              }, 762);
             }else if(msg.action == 'shownotifications'){
               ensure_open();
             }else if(msg.action == 'sharevisible' && msg.value == false){
