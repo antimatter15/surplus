@@ -18,6 +18,7 @@ function setShareURL(url, force){
   
   (function(){
     if(document.querySelector("div[contenteditable='plaintext-only']") && document.querySelector("span[title='Add link']").offsetHeight){
+      if(document.querySelectorAll("#summary-view>div")[0].querySelector('a[href="'+url+'"]')) return;
       if(!force && document.querySelector("div[contenteditable='plaintext-only']").innerText.trim() != '') return;
       try{
         [].slice.call(document.querySelectorAll("#summary-view>div")[0].querySelectorAll('div[tabindex="0"]'),0)
