@@ -152,7 +152,6 @@ function open_share(){
   }else{
     chrome.tabs.getSelected(null, function(tab){
       console.log("Got current tab", tab)      
-      
       global_inner_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
       global_port.postMessage({action: 'share', visible: share_visible});
     })
@@ -247,8 +246,14 @@ chrome.extension.onConnect.addListener(function(port) {
     global_port = port;
     global_port_src = '';
     global_inner_port = null;
+    //var orig = visible;
+    if(visible == false){
+      close_tainted = true;
+    }
+    ensure_open();
+
+    //ensure_popup(visible);
     
-    ensure_popup(visible);
     setTimeout(function(){
       if(document.getElementById('frame')){ //check if it is being hosted in the bg
         ensure_closed();
