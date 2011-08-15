@@ -132,9 +132,6 @@ function ensure_popup(state){
   
   console.log("ensuring state", state);
   last_event = +new Date;
-  if(state == true && share_visible){
-    close_share();
-  }
   global_port.postMessage({action: 'winstate', state: state});
   shift_frame();
   share_visible = false;
@@ -149,7 +146,7 @@ function ensure_popup(state){
 
 function open_share(){
   console.log("Opening Share Window");
-  ensure_closed();
+  //ensure_closed();
   shift_frame()
   share_visible = true;
 
@@ -166,25 +163,12 @@ function open_share(){
   
 }
 
-function close_share(){
-  console.log("Closing Share Window");
-  share_visible = false;
-  shift_frame()
-  if(global_inner_port){
-    global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
-    global_inner_port.postMessage({action: 'sharehide'})
-  }
-  if(global_port){
-    global_port.postMessage({action: 'share', visible: share_visible});
-  }
-}
-
 function ensure_open(){
   ensure_popup(true);
 }
 
 function ensure_closed(){
-  ensure_popup(false);
+  open_share();
 }
 
 function manualUpdate(){
@@ -257,13 +241,11 @@ chrome.extension.onConnect.addListener(function(port) {
     global_port = port;
     global_port_src = '';
     global_inner_port = null;
-
-    setTimeout(function(){
-      if(document.getElementById('frame')){ //check if it is being hosted in the bg
-        ensure_closed();
-        console.log('ensure closed after check for parenthood');
-      }
-    }, 100)
+    if(!visible){
+      open_share();
+    }else{
+      ensure_open();
+    }
     port.onMessage.addListener(function(msg){
       current_user = msg.user;
       global_port_src = msg.src;
@@ -310,12 +292,6 @@ chrome.extension.onConnect.addListener(function(port) {
               }, 762);
             }else if(msg.action == 'shownotifications'){
               ensure_open();
-            }else if(msg.action == 'sharevisible' && msg.value == false){
-              if(share_visible){
-                console.log("Auto Reopen Notifications");
-                close_share();
-                setTimeout(ensure_open, 100)
-              }
             }
           })
         }
