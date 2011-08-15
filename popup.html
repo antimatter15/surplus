@@ -80,13 +80,13 @@ function attemptLoad(){
       return;
     }
     document.getElementById('reload').innerText += "Document is missing. Please try again in a few seconds."
-    chrome.extension.getBackgroundPage().location.reload();
+    //chrome.extension.getBackgroundPage().location.reload();
     setTimeout(function(){
       window.close()
     }, 1500)
 	  //document.getElementById('reload').style.display = '';
 	}else{
-	  document.getElementById('reload').innerText += "Loading..."
+	  document.getElementById('reload').innerHTML += "<img src='img/loading.gif' style='left:180px;position:relative'>"
 	  document.adoptNode(frame);
 	  document.body.appendChild(frame);
 		bg.start_load();

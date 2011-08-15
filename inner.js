@@ -47,6 +47,8 @@ function setShareURL(url, force){
 
 port.onMessage.addListener(function(msg){
   //console.log('recieved query for notifications')
+  if(msg.user && document.getElementById('usersettings')) document.getElementById('usersettings').innerText = msg.user;
+  
   if(msg.action == 'xhr'){
     var xhr = new XMLHttpRequest();
     xhr.open('get', msg.url, true);
@@ -59,9 +61,14 @@ port.onMessage.addListener(function(msg){
     console.log("Set Sharevisible to", sharevisible);
     if(sharevisible == true && msg.current_url){
       setShareURL(msg.current_url);
-      var el = document.getElementById('plusoneform');
-      if(el) el.parentNode.removeChild(el);
+      var el;
+      while(el = document.getElementById('plusoneform')) 
+        el.parentNode.removeChild(el);
       setTimeout(function(){
+        var el;
+        while(el = document.getElementById('plusoneform')) 
+          el.parentNode.removeChild(el);
+        
         var iframe = document.createElement('iframe');
         iframe.id = 'plusoneform';
         iframe.style.border = '0';
@@ -122,7 +129,7 @@ port.onMessage.addListener(function(msg){
     document.getElementById('usersettings').onclick = function(){
       port.postMessage({action: 'profile'})
     }
-    function check_visible(){
+    /*function check_visible(){
       var views = document.querySelectorAll("#summary-view>div");
       if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
         port.postMessage({action: "sharevisible", value: false})
@@ -132,6 +139,7 @@ port.onMessage.addListener(function(msg){
     document.addEventListener("click", function(){
       setTimeout(check_visible, 200);
     }, false);
+    */
   }
   
 })

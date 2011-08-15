@@ -72,23 +72,28 @@ port.onDisconnect.addListener(function(){
 
 function update_status(){
   var el = document.getElementById('gbi1')
-  if(document.getElementById('gbi4') || document.querySelector('a[href="//google.com/profiles"]')){
-    var uid = document.getElementById('gbi4').innerText || document.querySelector('a[href="//google.com/profiles"]').innerText.trim();
-  
+  if(document.getElementById('gbi4t')){
+    var uid = document.getElementById('gbi4t').innerText
+  }else if(document.querySelector('a[href="//google.com/profiles"]')){    
+    var uid = document.querySelector('a[href="//google.com/profiles"]').innerText.trim();
   }else{
-    var uid = '';
+    var uid = 'None';
   }
   
   var frame = document.querySelector('#gbwc iframe');
   
   if(!el){
     if(uid) port.postMessage({error: 'User does not have Google+.', user: uid});
-    else port.postMessage({error: 'Please sign into Google+'});
+    else port.postMessage({error: 'Please sign into Google+', user: ''});
   }else{
     port.postMessage({num: el.innerText, user: uid, src: frame?frame.src:'', height: frame?parseInt(document.querySelector('#gbwc').style.height):null})
   }
 
   scrollTo(0,0)
+  
+  if(!is_activated(1) && !is_activated(2)){
+    ensure(true);
+  }
 
 }
 setInterval(update_status, 1000);

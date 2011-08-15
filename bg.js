@@ -88,21 +88,23 @@ function popup_closed(){
 }
 function start_load(){
   //yay its been loaded!
-  if(!global_inner_port && !low_memory){
-    console.log("loaded popup and notification port not found")
+  if(!global_port && !low_memory){
+    console.log("loaded popup and notification port not found yet")
     setTimeout(function(){
-      if(!global_inner_port) location.reload();
-    }, 3141) //this is pi
-  }
-  if(localStorage.smartshare != 'no'){
-    if(old_num == 0){
-      open_share();
-    }else{
-      ensure_open();
-    }
+      //if(!global_inner_port) location.reload();
+      start_load();
+    }, 314) //this is pi
   }else{
-    if(!share_visible){
-      ensure_open();
+    if(localStorage.smartshare != 'no'){
+      if(old_num == 0){
+        open_share();
+      }else{
+        ensure_open();
+      }
+    }else{
+      if(!share_visible){
+        ensure_open();
+      }
     }
   }
 }
@@ -126,6 +128,8 @@ function evacuate(){
 
 
 function ensure_popup(state){
+
+  
   console.log("ensuring state", state);
   last_event = +new Date;
   if(state == true && share_visible){
@@ -139,6 +143,8 @@ function ensure_popup(state){
   }
   visible = state;
   setTimeout(manualUpdate, 1000);
+  
+  if(global_inner_port) global_inner_port.postMessage({user: current_user});
 }
 
 function open_share(){
@@ -146,10 +152,11 @@ function open_share(){
   ensure_closed();
   shift_frame()
   share_visible = true;
+
   if(localStorage.nocurrentpage == 'yes'){
     global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
     global_port.postMessage({action: 'share', visible: share_visible});
-  }else{
+  }else if(global_inner_port){
     chrome.tabs.getSelected(null, function(tab){
       console.log("Got current tab", tab)      
       global_inner_port.postMessage({action: 'sharevisible', value: share_visible, current_url: tab.url})
@@ -163,9 +170,13 @@ function close_share(){
   console.log("Closing Share Window");
   share_visible = false;
   shift_frame()
-  global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
-  global_inner_port.postMessage({action: 'sharehide'})
-  global_port.postMessage({action: 'share', visible: share_visible});
+  if(global_inner_port){
+    global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
+    global_inner_port.postMessage({action: 'sharehide'})
+  }
+  if(global_port){
+    global_port.postMessage({action: 'share', visible: share_visible});
+  }
 }
 
 function ensure_open(){
@@ -246,14 +257,7 @@ chrome.extension.onConnect.addListener(function(port) {
     global_port = port;
     global_port_src = '';
     global_inner_port = null;
-    //var orig = visible;
-    if(visible == false){
-      close_tainted = true;
-    }
-    ensure_open();
 
-    //ensure_popup(visible);
-    
     setTimeout(function(){
       if(document.getElementById('frame')){ //check if it is being hosted in the bg
         ensure_closed();
@@ -262,15 +266,16 @@ chrome.extension.onConnect.addListener(function(port) {
     }, 100)
     port.onMessage.addListener(function(msg){
       current_user = msg.user;
-      if(msg.log){
-        console.log('r', msg.log);
-      }else if(msg.error){
+      global_port_src = msg.src;
+      if(msg.error){
         login_error = msg.error;
         drawIcon("!!");
+      }else if(msg.log){
+        console.log('r', msg.log);
       }else{
-        if(share_visible && msg.height) frame.style.height = Math.max(msg.height+300, baseheight)+'px';
+        if(share_visible && msg.height)
+          frame.style.height = Math.max(msg.height+300, baseheight)+'px';
         
-        global_port_src = msg.src;
         if(last_recorded_number != msg.num && (+new Date - last_recorded_time) > 2000){
           setTimeout(manualUpdate, 100);
           last_recorded_time = +new Date;
@@ -285,10 +290,8 @@ chrome.extension.onConnect.addListener(function(port) {
       if(global_port_src){
         //console.log('found global port source', global_port_src, port.name);
         if(global_port_src == port.name){
-          setTimeout(function(){
-            chrome.browserAction.setPopup({popup:'popup.html'});
-            setTimeout(manualUpdate, 100);
-          }, 762);
+          console.log("popup");
+          chrome.browserAction.setPopup({popup:'popup.html'});
           console.log("Initialized new Notifications Port", port);
           global_inner_port = port;
           port.postMessage({action: 'accept', user: current_user});
@@ -316,7 +319,7 @@ chrome.extension.onConnect.addListener(function(port) {
             }
           })
         }
-      }else setTimeout(poll, 500);
+      }else setTimeout(poll, 97);
     }
     poll();
   }
