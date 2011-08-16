@@ -3,23 +3,6 @@ if(localStorage.althost == 'yes'){
   furl = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
 }else{
   furl = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
-  if(localStorage.althost != 'no'){
-    var xhr = new XMLHttpRequest();
-    xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-    xhr.onload = function(){
-      var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-      xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
-      xhr.onload = function(){
-        var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-        if(iHasNotify == false && vHasNotify == true){
-          localStorage.althost = 'yes';
-          location.reload();
-        }
-      }
-      xhr.send()
-    }
-    xhr.send();
-  }
 }
 
 var unlucky = /unlucky/.test(location.search);
@@ -47,9 +30,11 @@ if(frame){
     }, 2000);
   }
 }
+
+//rise of the planet of the globals
 var heightstate = 0;
 var login_error = false;
-var visible = true;
+var visible = false;
 var share_visible = false;
 var current_user = '';
 var last_event = +new Date;
@@ -62,6 +47,7 @@ var last_recorded_number = -1;
 var last_recorded_time = +new Date;
 var last_updated_time = 0;
 var update_queued = false;
+var editing = false;
 var old_num = 0;
 
 
@@ -94,7 +80,7 @@ function start_load(){
       //if(!global_inner_port) location.reload();
       start_load();
     }, 314) //this is pi
-  }else{
+  }else if(!(visible == true && editing == true)){
     if(localStorage.smartshare != 'no'){
       if(old_num == 0){
         open_share();
@@ -102,9 +88,7 @@ function start_load(){
         ensure_open();
       }
     }else{
-      if(!share_visible){
-        ensure_open();
-      }
+      ensure_open();
     }
   }
 }
@@ -120,36 +104,18 @@ function evacuate(){
     console.log('restoring window')
     document.adoptNode(frame);
     document.body.appendChild(frame);
-    close_tainted = true;
+    global_inner_port.postMessage({action: 'checkediting'})
   }
 }
 
 
 
-
-function ensure_popup(state){
-
-  
-  console.log("ensuring state", state);
-  last_event = +new Date;
-  global_port.postMessage({action: 'winstate', state: state});
-  shift_frame();
-  share_visible = false;
-  if(global_inner_port){
-    global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
-  }
-  visible = state;
-  setTimeout(manualUpdate, 1000);
-  
-  if(global_inner_port) global_inner_port.postMessage({user: current_user});
-}
 
 function open_share(){
   console.log("Opening Share Window");
-  //ensure_closed();
   shift_frame()
   share_visible = true;
-
+  visible = false;
   if(localStorage.nocurrentpage == 'yes'){
     global_inner_port.postMessage({action: 'sharevisible', value: share_visible})
     global_port.postMessage({action: 'share', visible: share_visible});
@@ -164,7 +130,18 @@ function open_share(){
 }
 
 function ensure_open(){
-  ensure_popup(true);
+  console.log("opening popup");
+  last_event = +new Date;
+  global_port.postMessage({action: 'winstate', state: true});
+  shift_frame();
+  share_visible = false;
+  visible = true;
+  setTimeout(manualUpdate, 1000);
+  
+  if(global_inner_port){
+    //this really doesn't do anything btw
+    global_inner_port.postMessage({action: 'sharevisible', value: share_visible, user: current_user})
+  }  
 }
 
 function ensure_closed(){
@@ -207,7 +184,17 @@ function handleCount(text){
   old_num = num;
 }
 
-
+ /*
+  * Hi. I did this with VectorEdtor and scratchpad, so I guess I'll try to do the same here with Surplus
+  * If you are reading this code, in the distant future, say, the year 2012 and you are, as any sensible 
+  * human (presuming that you are a human) would, preparing for the Mayan and Timewave Zero-predicted 
+  * impending apocalypse, (or not) it doesn't matter. You should totally email me at antimatter15@gmail.com 
+  * because it's always an interesting feeling to realize that the future.
+  * 
+  * If the world has already ended, there's a good chance that I won't be able to respond, and it's hard to
+  * foresee anyone reading this in a post-apocalyptic world. Nonetheless, if you do manage to read this 
+  * after life on earth has ceased, please document your tale.
+  */
 
 function drawIcon(num){
   num += '';
@@ -234,24 +221,52 @@ function drawIcon(num){
   }
 }
 
+
+function check_althost(){
+  var xhr = new XMLHttpRequest();
+  xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+  xhr.onload = function(){
+    var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+    xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+    xhr.onload = function(){
+      var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
+      if(iHasNotify == false && vHasNotify == true){
+        localStorage.althost = 'yes';
+        location.reload();
+      }
+    }
+    xhr.send()
+  }
+  xhr.send();
+}
+
 chrome.extension.onConnect.addListener(function(port) {
   if(port.name == 'chell'){ // i dont know why i'm naming this after portal 2  characters
-    
+
+    chrome.browserAction.setPopup({popup:'popup.html'});
     console.log("Initialized new Sandbar Port", port);
     global_port = port;
     global_port_src = '';
     global_inner_port = null;
     if(!visible){
+      console.log('------------------OPEN SHAREW')
       open_share();
     }else{
+      console.log('------------------OPEN NOTIFIAKETSN')
       ensure_open();
     }
+    port.onDisconnect.addListener(function(msg){
+      console.log('|||||||||||||||||||DISCONNECTED SANDBAR PORT|||||||||||||||||||');
+      //frame.src = furl;
+    })
     port.onMessage.addListener(function(msg){
       current_user = msg.user;
       global_port_src = msg.src;
       if(msg.error){
         login_error = msg.error;
         drawIcon("!!");
+        if(msg.code == 6) check_althost();
+        
       }else if(msg.log){
         console.log('r', msg.log);
       }else{
@@ -266,17 +281,17 @@ chrome.extension.onConnect.addListener(function(port) {
       }
     })
   }else{ // if(port.name == 'wheatley'){
-    //console.log('recieved potential wheatley');
-    
     function poll(){
       if(global_port_src){
         //console.log('found global port source', global_port_src, port.name);
         if(global_port_src == port.name){
-          console.log("popup");
-          chrome.browserAction.setPopup({popup:'popup.html'});
           console.log("Initialized new Notifications Port", port);
           global_inner_port = port;
           port.postMessage({action: 'accept', user: current_user});
+          port.onDisconnect.addListener(function(msg){
+            console.log('|||||||||||||||||||DISCONNECTED INNER PORT|||||||||||||||||||');
+            //frame.src = furl;
+          })
           port.onMessage.addListener(function(msg){
             if(msg.action == 'xhr'){
               handleCount(msg.response)
@@ -292,6 +307,9 @@ chrome.extension.onConnect.addListener(function(port) {
               }, 762);
             }else if(msg.action == 'shownotifications'){
               ensure_open();
+            }else if(msg.action == 'checkediting'){
+              if(!msg.value) ensure_closed();
+              editing = msg.value;
             }
           })
         }
@@ -374,13 +392,8 @@ var birthday = +new Date;
 
 setInterval(function(){manualUpdate()}, 20 * 1000);
 
-var close_tainted = false;
 setInterval(function(){
   if(!low_memory){
-    if(close_tainted && !share_visible && document.getElementById('frame') && (new Date - last_event > 4 * 1000)){ //check if it is being hosted in the bg
-      ensure_closed();
-      close_tainted = false;
-    }
   
     if(new Date - last_event > 18 * 60 * 1000){
       frame.src = frame.src; //reload frame.

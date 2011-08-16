@@ -1,6 +1,4 @@
 var port = chrome.extension.connect({name: location.href});
-var sharevisible = false;
-
 function mouse(name){
   var evt = document.createEvent("MouseEvents");
   evt.initMouseEvent(name ? ('mouse'+name) : 'click', true, true, window, 0, 0, 0, 1, 1, false, false, false, false, 0, null);
@@ -14,12 +12,17 @@ document.addEventListener("keydown", function(e){
   }
 },true)
 
+function focusText(){
+  setTimeout(function(){
+    document.querySelector("div[contenteditable='plaintext-only']").focus()
+  }, 100);
+}
+
 function setShareURL(url, force){
-  
   (function(){
     if(document.querySelector("div[contenteditable='plaintext-only']") && document.querySelector("span[title='Add link']").offsetHeight){
-      if(document.querySelectorAll("#summary-view>div")[0].querySelector('a[href="'+url+'"]')) return;
-      if(!force && document.querySelector("div[contenteditable='plaintext-only']").innerText.trim() != '') return;
+      if(document.querySelectorAll("#summary-view>div")[0].querySelector('a[href="'+url+'"]')) return focusText();
+      if(!force && document.querySelector("div[contenteditable='plaintext-only']").innerText.trim() != '') return focusText();
       try{
         [].slice.call(document.querySelectorAll("#summary-view>div")[0].querySelectorAll('div[tabindex="0"]'),0)
           .filter(function(e){return(getComputedStyle(e).right=='11px')})[0].dispatchEvent(mouse());
@@ -35,9 +38,7 @@ function setShareURL(url, force){
             var addbtn = document.querySelector('td>div div[role=button]');
             addbtn.dispatchEvent(mouse('down'));
             addbtn.dispatchEvent(mouse('up'));
-            setTimeout(function(){
-              document.querySelector("div[contenteditable='plaintext-only']").focus()
-            }, 100);
+            focusText()
           }, 100)
         }
       }, 100);
@@ -57,8 +58,9 @@ port.onMessage.addListener(function(msg){
     }
     xhr.send();
   }else if(msg.action == "sharevisible"){
-    sharevisible = msg.value;
+    var sharevisible = msg.value;
     console.log("Set Sharevisible to", sharevisible);
+    
     if(sharevisible == true && msg.current_url){
       setShareURL(msg.current_url);
       var el;
@@ -80,6 +82,10 @@ port.onMessage.addListener(function(msg){
         iframe.style['float'] = 'right';
       }, 762);
     }
+  }else if(msg.action == 'checkediting'){
+    var editing = document.activeElement.isContentEditable&&!!document.activeElement.innerText.trim();
+    port.postMessage({action: 'checkediting', value: editing});
+    
   }else if(msg.action == "sharehide"){
     console.log("Temporarily Hiding Share box");
     var views = document.querySelectorAll("#summary-view>div");
@@ -129,17 +135,6 @@ port.onMessage.addListener(function(msg){
     document.getElementById('usersettings').onclick = function(){
       port.postMessage({action: 'profile'})
     }
-    /*function check_visible(){
-      var views = document.querySelectorAll("#summary-view>div");
-      if(views.length == 2 && views[0].style.display == 'none' && sharevisible){
-        port.postMessage({action: "sharevisible", value: false})
-      }
-    }
-    setInterval(check_visible, 500)
-    document.addEventListener("click", function(){
-      setTimeout(check_visible, 200);
-    }, false);
-    */
   }
   
 })

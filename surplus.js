@@ -43,7 +43,11 @@ function ensure(state){
 
 var port = chrome.extension.connect({name: "chell"});
 var sharing = false;
+var error = false;
+
 port.onMessage.addListener(function(msg){
+  if(error) return;
+  
   if(msg.action == "winstate"){
     ensure(msg.state);
   }else if(msg.action == 'share'){
@@ -64,12 +68,6 @@ function log(){
   (new Function(args.join(','),'console.log('+args.join(',')+')')).apply(this, arguments);
 }
 
-port.onDisconnect.addListener(function(){
-  setTimeout(function(){
-    location.reload();
-  }, 762);
-})
-
 function update_status(){
   var el = document.getElementById('gbi1')
   if(document.getElementById('gbi4t')){
@@ -83,7 +81,8 @@ function update_status(){
   var frame = document.querySelector('#gbwc iframe');
   
   if(!el){
-    if(uid) port.postMessage({error: 'User does not have Google+.', user: uid});
+    error = true;
+    if(uid) port.postMessage({error: 'User does not have Google+.', user: uid, code: 6});
     else port.postMessage({error: 'Please sign into Google+', user: ''});
   }else{
     port.postMessage({num: el.innerText, user: uid, src: frame?frame.src:'', height: frame?parseInt(document.querySelector('#gbwc').style.height):null})
@@ -91,13 +90,17 @@ function update_status(){
 
   scrollTo(0,0)
   
-  if(!is_activated(1) && !is_activated(2)){
-    ensure(true);
-  }
-
+  
 }
 setInterval(update_status, 1000);
 
+setTimeout(function(){
+  setInterval(function(){
+    if(!is_activated(1) && !is_activated(2)){
+      ensure_share(true);
+    }
+  }, 762);
+}, 1618);
 update_status();
 
 var head = document.getElementsByTagName('head')[0], style = document.createElement('link');
