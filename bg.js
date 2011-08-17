@@ -37,7 +37,6 @@ var login_error = false;
 var visible = false;
 var share_visible = false;
 var current_user = '';
-var last_event = +new Date;
 var global_port;
 var global_port_src = '';
 var global_inner_port;
@@ -62,7 +61,6 @@ function popup_loaded(){
 
 function popup_closed(){
   heightstate = 0;
-  
   setTimeout(function(){
     if(ultra_low_memory){
       chrome.browserAction.setPopup({popup:'lite.html'})
@@ -72,12 +70,12 @@ function popup_closed(){
   },/Windows/.test(navigator.userAgent)?762:267) //762 is the feynman point in pi
   //i just woke up one day with the number stuck in my head
 }
+
 function start_load(){
   //yay its been loaded!
   if(!global_port && !low_memory){
     console.log("loaded popup and notification port not found yet")
     setTimeout(function(){
-      //if(!global_inner_port) location.reload();
       start_load();
     }, 314) //this is pi
   }else if(!(visible == true && editing == true)){
@@ -94,7 +92,6 @@ function start_load(){
 }
 function evacuate(){
   console.log("Evacuate");
-  //if(!share_visible) ensure_closed();
   if(low_memory){
     frame.src = 'about:blank';
     frame.parentNode.removeChild(frame);
@@ -131,15 +128,13 @@ function open_share(){
 
 function ensure_open(){
   console.log("opening popup");
-  last_event = +new Date;
   global_port.postMessage({action: 'winstate', state: true});
   shift_frame();
   share_visible = false;
   visible = true;
   setTimeout(manualUpdate, 1000);
   
-  if(global_inner_port){
-    //this really doesn't do anything btw
+  if(global_inner_port){//this really doesn't do anything btw
     global_inner_port.postMessage({action: 'sharevisible', value: share_visible, user: current_user})
   }  
 }
@@ -179,7 +174,6 @@ function handleCount(text){
   if(old_num < num) getNotifications(num);
   if((num-old_num) != 0){
     console.log('Got Notifications',num, 'Delta='+(num-old_num));   
-    last_event = +new Date;
   }
   old_num = num;
 }
@@ -223,6 +217,7 @@ function drawIcon(num){
 
 
 function check_althost(){
+  if(localStorage.althost == 'yes') return;
   var xhr = new XMLHttpRequest();
   xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
   xhr.onload = function(){
@@ -257,7 +252,6 @@ chrome.extension.onConnect.addListener(function(port) {
     }
     port.onDisconnect.addListener(function(msg){
       console.log('|||||||||||||||||||DISCONNECTED SANDBAR PORT|||||||||||||||||||');
-      //frame.src = furl;
     })
     port.onMessage.addListener(function(msg){
       current_user = msg.user;
@@ -283,14 +277,12 @@ chrome.extension.onConnect.addListener(function(port) {
   }else{ // if(port.name == 'wheatley'){
     function poll(){
       if(global_port_src){
-        //console.log('found global port source', global_port_src, port.name);
         if(global_port_src == port.name){
           console.log("Initialized new Notifications Port", port);
           global_inner_port = port;
           port.postMessage({action: 'accept', user: current_user});
           port.onDisconnect.addListener(function(msg){
             console.log('|||||||||||||||||||DISCONNECTED INNER PORT|||||||||||||||||||');
-            //frame.src = furl;
           })
           port.onMessage.addListener(function(msg){
             if(msg.action == 'xhr'){
@@ -377,7 +369,7 @@ function showMessage() {
     }, parseInt(localStorage.autodismiss || 5) * 1000);
   }
 }
-setInterval(showMessage, 6000); //seems like a good duration
+
 
 function chromeOS() {
   chrome.windows.create({
@@ -388,16 +380,16 @@ function chromeOS() {
   })
 }
 
+
+setInterval(showMessage, 6000); //seems like a good duration
+
+
 var birthday = +new Date;
 
 setInterval(function(){manualUpdate()}, 20 * 1000);
 
 setInterval(function(){
   if(!low_memory){
-  
-    if(new Date - last_event > 18 * 60 * 1000){
-      frame.src = frame.src; //reload frame.
-    }
     if(new Date - birthday > 1000 * 60 * 20){
       chrome.idle.queryState(15 * 60, function(state){
         if(state == 'idle'){
@@ -407,7 +399,11 @@ setInterval(function(){
     }
   }
 }, 5000);
+
+
 drawIcon('');
+
+
 if(!low_memory){
   chrome.browserAction.setPopup({popup:''});
 }else{
