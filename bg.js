@@ -1,6 +1,6 @@
 var furl = '';
 if(localStorage.althost == 'yes'){
-  furl = "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
+  furl = "http://www.google.com/blogsearch?extension=surplus&authuser="+(localStorage.auth_user||0);
 }else{
   furl = "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0);
 }
@@ -17,17 +17,23 @@ if(frame){
   frame.onload = function(){
     frame.onload = null;
     setTimeout(function(){
+      
       if(!global_port){
         console.log("FAILURE");
+        return;
         if(navigator.userAgent.indexOf('Chrome/13.') != -1 && navigator.userAgent.indexOf('Windows') != -1){
           location.href += "?unlucky";
         }else if(!/retry/.test(location.search)){
-          location.href += "?retry";
+          setTimeout(function(){
+            location.href += "?retry";
+          }, 1000);
         }else{
-          location.href += "?unlucky";
+          setTimeout(function(){
+            location.href += "?unlucky";
+          }, 1000);
         }
       }
-    }, 2000);
+    }, 1000);
   }
 }
 
@@ -222,7 +228,7 @@ function check_althost(){
   xhr.open('get', "http://images.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
   xhr.onload = function(){
     var iHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
-    xhr.open('get', "http://video.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
+    xhr.open('get', "http://blogsearch.google.com/?extension=surplus&authuser="+(localStorage.auth_user||0), true);
     xhr.onload = function(){
       var vHasNotify = xhr.responseText.indexOf('_/notifications/frame') != -1;
       if(iHasNotify == false && vHasNotify == true){
@@ -335,7 +341,7 @@ function getNotifications(num){
     if(localStorage.notify == 'yes'){
 
       var xhr = new XMLHttpRequest();
-      xhr.open('get', 'https://plus.google.com/u/0/_/notifications/getnotificationsdata', true);
+      xhr.open('get', 'https://plus.google.com/u/'+(localStorage.auth_user || 0)+'/_/notifications/getnotificationsdata', true);
       xhr.onload = function(){
         var notifications = parseNotifications(eval(xhr.responseText.substr(5)));
         showqueue = showqueue.concat(notifications.slice(0, parseInt(num)));

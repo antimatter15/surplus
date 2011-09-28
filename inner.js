@@ -63,6 +63,9 @@ port.onMessage.addListener(function(msg){
     
     if(sharevisible == true && msg.current_url){
       setShareURL(msg.current_url);
+      if(document.getElementById('plusone_button'))
+        document.getElementById('plusone_button').src = chrome.extension.getURL('plusone.html')+'?'+encodeURIComponent(msg.current_url);
+      /*
       var el;
       while(el = document.getElementById('plusoneform')) 
         el.parentNode.removeChild(el);
@@ -80,7 +83,10 @@ port.onMessage.addListener(function(msg){
         var blag = document.getElementById('summary-view').firstChild.childNodes[1];
         blag.insertBefore(iframe, blag.lastChild);
         iframe.style['float'] = 'right';
-      }, 762);
+      }, 762);*/
+    }else{
+      if(document.getElementById('plusone_button'))
+        document.getElementById('plusone_button').src = chrome.extension.getURL('plusone.html');
     }
   }else if(msg.action == 'checkediting'){
     var editing = document.activeElement.isContentEditable&&!!document.activeElement.innerText.trim();
@@ -104,7 +110,7 @@ port.onMessage.addListener(function(msg){
     var reminder = document.createElement('div');
     reminder.style.padding = '18px 2px 17px 0px';
     
-    reminder.innerHTML = '<a href="javascript:void(0)" id="surplusback"><span style="font-size:110%;font-weight:bold">&#8249; Back to Notifications</span></a> <span style="float:right">Remember to <a href="javascript:void(0)" id="sharesurplus">share</a> Surplus! <iframe style="margin-bottom: -3px;height:15px;width:24px;border:0" src="'+chrome.extension.getURL('plusone.html')+'"></iframe></span>';
+    reminder.innerHTML = '<a href="javascript:void(0)" id="surplusback"><span style="font-size:110%;font-weight:bold">&#8249; Back to Notifications</span></a> <span style="float:right"> <iframe id="plusone_button" style="margin-bottom: -3px;height:15px;width:70px;border:0" src="'+chrome.extension.getURL('plusone.html')+'"></iframe> <a href="javascript:void(0)" id="sharesurplus">Share</a> Surplus!</span>';
     share.insertBefore(reminder, share.firstChild);
     document.getElementById('sharesurplus').onclick = function(){
       setShareURL("https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf", true);

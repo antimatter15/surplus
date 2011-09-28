@@ -17,8 +17,11 @@ body {
 </script>
 
 <script type="text/javascript">
+var url = decodeURIComponent(location.search.slice(1));
+
+/*
 if(location.search){
-  var url = decodeURIComponent(location.search.slice(1))
+
   gapi.plusone.render("plusone-div", {
     size: "standard",
     count: "true",
@@ -30,5 +33,12 @@ if(location.search){
     count: "false",
     href: "https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf"
   })
-}
+}*/
+
+
+gapi.plusone.render("plusone-div", {
+    size: "small",
+    count: "true",
+    href: (location.search&&/http/.test(url))?url:"https://chrome.google.com/webstore/detail/pfphgaimeghgekhncbkfblhdhfaiaipf"
+  })
 </script>
