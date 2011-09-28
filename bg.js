@@ -199,7 +199,7 @@ function handleCount(text){
 function drawIcon(num){
   num += '';
   if(localStorage.usebadge == 'yes') { 
-    chrome.browserAction.setBadgeText({ text:num });
+    chrome.browserAction.setBadgeText({ text:num=='0'?'':num });
     chrome.browserAction.setIcon({path: 'img/classic.png'});
   }else{
     chrome.browserAction.setBadgeText({ text:'' });
