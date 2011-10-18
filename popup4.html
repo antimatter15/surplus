@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Surplus</title>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      var frame = chrome.extension.getBackgroundPage().frame;
+      document.adoptNode(frame);
+      document.getElementById('container').appendChild(frame);
+      window.onunload = function(){
+        chrome.extension.getBackgroundPage().restore();
+      }
+    </script>
+  </body>
+</html>

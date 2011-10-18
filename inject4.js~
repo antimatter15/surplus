@@ -25,6 +25,8 @@ var container = document.createElement('div');
 container.style.width = '440px';
 container.style.overflow = 'hidden';
 container.style.position = 'absolute';
+container.style.top = '0';
+container.style.left = '0';
 
 var iframe = document.createElement('iframe');
 iframe.scrolling = 'no';
@@ -39,7 +41,8 @@ onmessage = function(e){
     iframe.style.height = j.a[1].height+'px';
   }else if(j.s == '_ready'){
     send({"s":"__cb","f":"..","c":1,"a":[1,null],"t":"86208861","l":false,"g":true,"r":".."});
-     send({"s":"getVarc","f":"..","c":2,"a":["","base"],"t":"86208861","l":false,"g":true,"r":".."})
+    send({"s":"getVarc","f":"..","c":2,"a":["","base"],"t":"86208861","l":false,"g":true,"r":".."});
+    
     showNotifications();
   }else if(j.s == 'navigateTo'){
     console.log(j.a[1].url); //this is the magical command to open a tab

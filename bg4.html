@@ -1,0 +1,27 @@
+<iframe src="http://www.google.com/404?extension=surplus" id="frame" frameborder="no" scrolling="no"></iframe>
+<script>
+    var frame = document.getElementById('frame');
+    var control_port;
+    function restore(){
+        document.adoptNode(frame);
+        document.body.appendChild(frame);
+        control_port.postMessage({action: "minimize"})
+    }
+    chrome.extension.onConnect.addListener(function(port) {
+        if(port.name == "host"){
+            port.postMessage({
+                action: "config",
+                target_height: 500,
+                target_width: 440
+            });
+            control_port = port;
+        }
+        
+        port.onMessage.addListener(function(msg){
+            if(msg.action == "resize"){
+                frame.style.width = msg.width + 'px';
+                frame.style.height = msg.height + 'px';
+            }
+        })
+    })
+</script>

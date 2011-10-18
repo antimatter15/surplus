@@ -2,7 +2,7 @@
   "name": "Surplus",
   "version": "4",
   "description": "Google Plus Integration for Chrome",
-  "background_page": "bg4.html",
+  "background_page": "background.html",
   "icons": {
     "16": "img/16.png",
     "32": "img/32.png",
@@ -14,14 +14,14 @@
   "browser_action": {
     "default_icon": "img/old.png",
     "default_title": "Surplus",
-    "default_popup": "popup4.html"
+    "default_popup": "popup.html"
   },
   "content_scripts": [
     {
       "matches": [
-	"http://*.google.com/*extension=surplus*",
-	"https://*.google.com/*extension=surplus*"
-	],
+									"http://*.google.com/*extension=surplus*",
+									"https://*.google.com/*extension=surplus*"
+									],
       "js": ["inject4.js"],
       "run_at": "document_end",
       "all_frames": true
@@ -35,8 +35,8 @@
   "permissions": [
     "http://*.google.com/",
     "https://*.google.com/",
-    "idle",
-    "geolocation",
+		"idle",
+		"geolocation",
     "tabs",
     "notifications"
   ]
