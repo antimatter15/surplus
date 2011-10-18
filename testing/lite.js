@@ -1,23 +1,24 @@
 document.body.innerHTML = '';
-//nuke stylesheets
 var styles = document.styleSheets, len = styles.length;
 while(len){
-    var sheet = styles[--len];
-    var rules = sheet.cssRules;
-    var rlength = rules.length;
+    var sheet = styles[--len], rules = sheet.cssRules, rlength = rules.length;
     while(rlength) sheet.deleteRule(--rlength);
 }
 
+function send(json){
+    frames[0].postMessage(JSON.stringify(json), 'https://plus.google.com');
+}
+
 function showSharebox(){
-    frames[0].postMessage('{"s":"onShowShareboxOnly","f":"..","c":0,"a":["",{}]}', 'https://plus.google.com')
+    send({"s":"onShowShareboxOnly","f":"..","c":0,"a":["",{}]})
 }
 
 function showNotifications(){
-    frames[0].postMessage('{"s":"onShowNotificationsOnly","f":"..","c":0,"a":["",{"maxWidgetHeight":311}],"t":"86208861","l":false,"g":true,"r":".."}', 'https://plus.google.com')
+send({"s":"onShowNotificationsOnly","f":"..","c":0,"a":["",{"maxWidgetHeight":311}],"t":"86208861","l":false,"g":true,"r":".."})
 }
 
 function hideWidgets(){
-    frames[0].postMessage('{"s":"onHide","f":"..","c":0,"a":["",{}]}', 'https://plus.google.com')
+    send({"s":"onHide","f":"..","c":0,"a":["",{}]})
 }
 
 var container = document.createElement('div');
@@ -27,21 +28,18 @@ container.style.position = 'absolute';
 
 var iframe = document.createElement('iframe');
 iframe.scrolling = 'no';
-
-iframe.width = '100%'; //eek it feels like a sin to write this
+iframe.width = '100%';
 iframe.frameBorder = 'no';
-iframe.style.height = '300px';
 
 onmessage = function(e){
-    //TODO: start parsing setNotifiationWidgetHeight et al.
     var j = JSON.parse(e.data);
     if(j.s == 'setNotificationWidgetHeight'){
         container.style.height = j.a[1];
     }else if(j.s == '_resizeMe'){
         iframe.style.height = j.a[1].height+'px';
     }else if(j.s == '_ready'){
-        frames[0].postMessage('{"s":"__cb","f":"..","c":1,"a":[1,null],"t":"86208861","l":false,"g":true,"r":".."}', 'https://plus.google.com');
-        frames[0].postMessage('{"s":"getVarc","f":"..","c":2,"a":["","base"],"t":"86208861","l":false,"g":true,"r":".."}', 'https://plus.google.com')
+        send({"s":"__cb","f":"..","c":1,"a":[1,null],"t":"86208861","l":false,"g":true,"r":".."});
+       send({"s":"getVarc","f":"..","c":2,"a":["","base"],"t":"86208861","l":false,"g":true,"r":".."})
         showNotifications();
     }else if(j.s == 'navigateTo'){
         console.log(j.a[1].url); //this is the magical command to open a tab
