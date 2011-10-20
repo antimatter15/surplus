@@ -38,9 +38,9 @@
                 popups[i].close();
         }
         editing(function(val){
-            if(val == false){
+            if(val == false && control_port && inner_port){
                if(current_notifications == 0 && localStorage.smartshare != 'no'){
-                    control_port.postMessage({action: "sharebox"})
+                    control_port.postMessage({action: "sharebox"});
                     chrome.tabs.getSelected(null, function(tab){
                         inner_port.postMessage({action: "share", current_url: localStorage.currentpage != "no" && tab.url})
                     })
@@ -99,7 +99,7 @@
                 chrome.windows.create({
                     url: "popup4.html",
                     width: 440,
-                    height: 500,
+                    height: 570,
                     type: 'popup'
                 })
             }else if(msg.action == "update"){
