@@ -59,6 +59,8 @@ onmessage = function(e){
         showNotifications();
     }else if(j.s == 'setNotificationText'){
         port.postMessage({action: "update"})
+    }else if(j.s == 'onInfo'){
+        port.postMessage({action: "error", message: j.a[2]});
     }else{
         console.log(j.s,e)
     }

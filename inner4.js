@@ -26,13 +26,19 @@ function init(){
     for(var i = 0; i < div.length; i++) if(div[i].innerText != '') break;
     div = div[i];
     var text = "Notifications";
-    div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;width:16px;height:16px;padding:3px 8px;display:inline'>Share</div> <div id='reloadbutton' style='cursor:pointer;background: url(\""+chrome.extension.getURL('img/view-refresh.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline'></div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+    div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;width:16px;height:16px;padding:3px 8px;display:inline'>Share</div> <div id='reloadbutton' style='cursor:pointer;height:15px;position:relative;top:7px;background: url(\""+chrome.extension.getURL('img/view-refresh.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline-block'></div> <div id='popoutbutton' style='cursor:pointer;background: url(\""+chrome.extension.getURL('img/popout.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline-block;height:15px;position:relative;top:7px;'></div> <div id='settingsbutton' style='cursor:pointer;height:15px;position:relative;top:7px;background: url(\""+chrome.extension.getURL('img/wrench.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline-block'></div>";
     
     document.getElementById('sharebutton').onclick = function(){
       port.postMessage({action: 'sharebox'})
     }
     document.getElementById('reloadbutton').onclick = function(){
       port.postMessage({action: 'reload'})
+    }
+    document.getElementById('popoutbutton').onclick = function(){
+      port.postMessage({action: 'popout'})
+    }
+    document.getElementById('settingsbutton').onclick = function(){
+      port.postMessage({action: 'settings'})
     }
 }
 

@@ -1,19 +1,25 @@
 <div style="width:440px;height:200px;" id="container">
-    <iframe src="http://www.google.com/404?extension=surplus" id="frame" frameborder="no" scrolling="no" width="100%" height="100%"></iframe>
+    <iframe id="frame" frameborder="no" scrolling="no" width="100%" height="100%"></iframe>
 </div>
+<script src="parse.js"></script>
 <script>
     var container = document.getElementById('container');
     var frame = document.getElementById('frame');
     var control_port, inner_port;
     
     var current_notifications = 0;
-    function restore(){
-        adopt(document);
-        editing(function(val){
-            if(val == false) control_port.postMessage({action: "hide"});
-        })
+    function restore(doc){
+        if(!doc || doc.getElementById('frame'))
+            adopt(document);
+        if(doc.getElementById('frame')){
+            editing(function(val){
+                if(val == false) control_port.postMessage({action: "hide"});
+            })
+        }
     }
-    window.onbeforeunload = restore;
+    window.onbeforeunload = function(){
+        restore();
+    };
     function plus(path){
         return 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/' + path
     }
@@ -26,6 +32,11 @@
     
     function initiate(doc){
         adopt(doc);
+        var popups = chrome.extension.getViews();
+        for(var i = 0; i < popups.length; i++){
+            if(/popup4.html/.test(popups[i].location.href) && popups[i].document != doc)
+                popups[i].close();
+        }
         editing(function(val){
             if(val == false){
                if(current_notifications == 0){
@@ -48,6 +59,20 @@
             cb(false)
         }
     }
+    
+
+ /*
+  * Hi. I did this with VectorEdtor and scratchpad, so I guess I'll try to do the same here with Surplus
+  * If you are reading this code, in the distant future, say, the year 2012 and you are, as any sensible 
+  * human (presuming that you are a human) would, preparing for the Mayan and Timewave Zero-predicted 
+  * impending apocalypse, (or not) it doesn't matter. You should totally email me at antimatter15@gmail.com 
+  * because it's always an interesting feeling to realize that the future.
+  * 
+  * If the world has already ended, there's a good chance that I won't be able to respond, and it's hard to
+  * foresee anyone reading this in a post-apocalyptic world. Nonetheless, if you do manage to read this 
+  * after life on earth has ceased, please document your tale.
+  */
+ 
     chrome.extension.onConnect.addListener(function(port) {
         if(port.name == "host"){
             port.postMessage({
@@ -70,8 +95,23 @@
                 console.log(msg.height)
             }else if(msg.action == "reload"){
                 location.reload(true);
+            }else if(msg.action == "popout"){
+                chrome.windows.create({
+                    url: "popup4.html",
+                    width: 440,
+                    height: 500,
+                    type: 'popup'
+                })
             }else if(msg.action == "update"){
                 updateCount();
+            }else if(msg.action == "error"){
+                drawIcon("!!");
+                clearInterval(updater);
+            }else if(msg.action == "settings"){
+                //todo: open settings
+                chrome.tabs.create({
+                    url: "options4.html"
+                })
             }else if(msg.action == "editing"){
                 editing.callback(msg.value)
             }else control_port.postMessage(msg);
@@ -80,7 +120,6 @@
     });
     function drawIcon(num){
         num += '';
-        current_notifications = parseInt(num);
         if(localStorage.usebadge == 'yes') { 
           chrome.browserAction.setBadgeText({ text:num=='0'?'':num });
           chrome.browserAction.setIcon({path: 'img/classic.png'});
@@ -102,21 +141,80 @@
             chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
           }
         }
-      }
+    }
+    
     function updateCount(){
         var xhr = new XMLHttpRequest();
         xhr.open('get', plus('_/n/guc'),true);
         xhr.onload = function(){
-            drawIcon(JSON.parse(xhr.responseText.substr(4))[1]);
+            var count = JSON.parse(xhr.responseText.substr(4))[1];
+            if(current_notifications < count) getNotifications(count);
+            current_notifications = count;
+            drawIcon(count);
         }
         xhr.send();
     }
     
-    setInterval(updateCount, 1000 * 10 * Math.PI);
+    var showqueue = [];
+    
+    function displayNotification(notification){
+        showqueue.push(notification);
+        function render(){
+            var msg = showqueue[0];
+            window.notify_message = msg.html
+            window.notify_image = msg.pic
+            var notification = window.webkitNotifications.createHTMLNotification('notification.html');;
+            notification.show();
+            setTimeout(function() {
+                notification.cancel();
+                showqueue.shift();
+                if(showqueue.length) setTimeout(render, 762);
+            }, 5000);
+        }
+        if(showqueue.length == 1) render();
+    }
+    
+    function getNotifications(count){
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', plus('_/notifications/getnotificationsdata'), true);
+        xhr.onload = function(){
+            parseNotifications(eval(xhr.responseText.substr(5)))
+                .slice(0, count).map(displayNotification);
+            if(localStorage.notifyread == 'yes') updatelastreadtime();
+            if(localStorage.notify_sound == 'yes')(new Audio("notify.ogg")).play();
+        }
+        xhr.send();
+    }
+    
+    
+    function updatelastreadtime(callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('get', plus('notifications/all'), true);
+      xhr.onload = function() {
+        var code = xhr.responseText.match(/"https:\/\/www\.google\.com\/csi"\,"([A-Za-z0-9\-_:]+)"\,\,\,/)[1];
+        var xhr2 = new XMLHttpRequest();
+        xhr2.onload = function() { if (callback) callback() }
+        xhr2.open('post', plus('_/notifications/updatelastreadtime'), true);
+        xhr2.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+        xhr2.send('time=' + (1000 * new Date) + '&at=' + code);
+      }
+      xhr.send();
+    }
+    
+    var updater = setInterval(updateCount, 1000 * 10 * Math.PI);
     
     var popups = chrome.extension.getViews();
     for(var i = 0; i < popups.length; i++){
         if(/popup4.html/.test(popups[i].location.href)) popups[i].init();
     }
     
+    drawIcon('');
+    
+    if(localStorage.mode == "lite"){
+        chrome.browserAction.setPopup({popup:'lite.html'});
+        updateCount();
+    }else{
+        chrome.browserAction.setPopup({popup:'popup4.html'});
+        frame.src = "http://www.google.com/404?extension=surplus";
+    }
 </script>

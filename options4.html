@@ -1,0 +1,153 @@
+<!doctype html> 
+<html> 
+  <head> 
+    <title>Surplus Settings</title> 
+    <style> 
+      body {
+        font-family: sans-serif, helvetica, arial;
+        margin-right: 50px;
+        margin-left: 120px;
+        background: url(img/64.png) no-repeat;
+        background-position: 30px 30px;
+        font-size: small;
+      }
+      
+      hr {
+        border-style: solid;
+        border-top: none;
+        border-color: gray;
+      }
+    </style> 
+ 
+  </head> 
+  <body> 
+    <h2 id="progress">Surplus Settings</h2>     
+    <p> 
+      <input type="checkbox" id="notif" onchange='localStorage.notify=this.checked?"yes":"no";deps();'> <label for="notif">Check to enable <b>desktop notifications</b></label> 
+    </p> 
+        
+    <p> 
+      <input type="checkbox" id="sounds" onchange='localStorage.notify_sound=this.checked?"yes":"no"'> <label for="sounds">Check to enable <b>notification sounds</b></label> 
+    </p> 
+
+    
+    <p  class="notify">
+      <input type="checkbox" id="notifyread" onchange='localStorage.notifyread=this.checked?"yes":"no"'> <label for="notifyread">Automatically mark <b>notifications as read</b> when desktop notifications are displayed.</label>
+    </p>
+
+      <p class='smartshare'>
+      <input type="checkbox" id="smartshare" onchange='localStorage.smartshare=this.checked?"yes":"no";'> <label for="smartshare">Check to enable the <b>Smart Share</b> feature, where clicking the Surplus button automatically opens the <b>sharing panel</b> if no notifications are unread.</label>
+    </p>
+		
+
+      <p>
+      <input type="checkbox" id="usebadge" onchange='localStorage.usebadge=this.checked?"yes":"no";chrome.extension.getBackgroundPage().location.reload();'> <label for="usebadge">Use classic <b>Google+ icon</b> and badge</label>
+    </p>
+		<p class="lite"> 
+      <input type="checkbox" id="currentpage" onchange='localStorage.currentpage=this.checked?"yes":"no"'> <label for="currentpage">Check to <b>automatically add the current page's URL</b> to the shared link field</label> 
+    </p>
+<p class="lite"> 
+      
+    </p>     
+ <hr> 
+
+  <p>
+  <select id="mode" onchange="localStorage.mode=this.value;chrome.extension.getBackgroundPage().location.reload();deps();">
+    <option value="normal">Normal Mode</option>
+    <option value="lite">Ultra Low Memory Mode</option>
+  </select>
+  <label for="mode">
+    <ul>
+      <li><b>Normal Mode</b> is fully featured and fast, but is known to often consume a lot of RAM.</li>
+      <li><b>Ultra Low Memory Mode</b>, also known as <b>Surplus Lite</b> lacks many features of Normal Mode but consumes very little memory.</li>
+    </ul>
+  </label>
+  </p>
+
+    <p id="ugly"> 
+      <input type="number" value=0 min=0 max=10 id="moar" style="width: 50px" onchange="change_user(this.value)"> <label for="moar">Switch Current <b>Authenticated User</b> (0 means the first logged in account, 1 for the second, 2 for the third and so on)</label>
+
+      </p> 
+    <p id="pretty" style='display:none'>
+    <select id="user" onchange="change_user(this.value)">
+      <option disabled>Loading...</option> 
+    </select>
+    <label for="user">
+      Switch Current <b>Authenticated User</b> for receiving Google+ notifications.
+    </label>
+    </p>
+ 
+    <p> 
+      <input type="button" value="Reload Background Page" onclick="chrome.extension.getBackgroundPage().location='bg4.html';"> Reloading the background page can fix certain issues with Surplus.
+    </p> 
+    
+    <script> 
+      document.getElementById('moar').value = localStorage.auth_user || 0;
+      document.getElementById('notif').checked = localStorage.notify == 'yes';
+      document.getElementById('usebadge').checked = localStorage.usebadge == 'yes';
+      document.getElementById('sounds').checked = localStorage.notify_sound == 'yes';
+      document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';
+      document.getElementById('smartshare').checked = localStorage.smartshare != 'no'; 
+      document.getElementById('currentpage').checked = localStorage.currentpage != 'no';
+      document.getElementById('mode').value = localStorage.mode || 'normal';
+
+      
+      function change_user(val){
+        localStorage.auth_user = val;
+        chrome.extension.getBackgroundPage().location.reload();
+      }
+      
+      
+    if(chrome.extension.getBackgroundPage().unlucky) document.getElementById('unlucky').style.display = '';
+      
+      function deps(){ //handle dependancies
+        for(var i = document.querySelectorAll('.notify'), k = 0; k < i.length; k++){
+          var e = i[k];          
+          e.style.display = (localStorage.notify == 'yes')?'':'none';
+        }
+        for(var i = document.querySelectorAll('.lite'), k = 0; k < i.length; k++){
+          var e = i[k];          
+          e.style.display = (localStorage.mode == 'lite')?'none':'';
+        }
+        document.querySelector('.smartshare').style.display = (localStorage.mode == 'lmm' || localStorage.mode == 'lite')?'none':'';
+      }
+      
+
+      
+      deps();
+      
+      function list_accounts(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'http://images.google.com/', true);
+        xhr.send();
+        var users = document.getElementById('user');
+        xhr.onload = function(){
+          users.innerHTML = '';
+          var ct = 0;
+          xhr.responseText.replace(/href="http\:\/\/images\.google\.com\/webhp\?authuser=(\d+).*?<\/a>/g, function(m, num){
+            ct++;
+            console.log(m);
+            var div = document.createElement('div');
+            div.innerHTML = '<a '+m.replace(/<\/span><span/g, '</span> - <span').replace('(default)', '');
+            var opt = document.createElement('option');
+            opt.innerHTML = div.innerText;
+            opt.value = num;
+            users.appendChild(opt);
+          });
+          if(ct > 0){
+            document.getElementById('ugly').style.display = 'none';
+            document.getElementById('pretty').style.display = '';
+            users.value = localStorage.auth_user || 0;
+          }
+        }
+      }
+      
+      list_accounts();
+    </script> 
+    <hr> 
+    <div style="font-size: x-small"> 
+      Part of the <a href="https://github.com/antimatter15/surplus">Surplus project</a>. Written by <a href="http://twitter.com/antimatter15">@antimatter15</a> (please follow me on twitter and on <a href="https://plus.google.com/116347431032639424492/posts?hl=en&tab=bh">Google+</a>). Email comments and concerns to <a href="mailto:antimatter15@gmail.com">antimatter15@gmail.com</a>.
+    </div> 
+ 
+  </body> 
+</html> 

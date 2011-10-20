@@ -19,9 +19,10 @@
       function init(){
         chrome.extension.getBackgroundPage().initiate(document);
       }
-      window.onunload = function(){
-        chrome.extension.getBackgroundPage().restore();
+      window.onbeforeunload = window.onunload = function(){
+        chrome.extension.getBackgroundPage().restore(document);
       }
+      
       init();
     </script>
   </body>
