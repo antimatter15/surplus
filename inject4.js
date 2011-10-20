@@ -22,10 +22,12 @@ function send(json){
 }
 
 function showSharebox(){
+    hideWidgets()
     send({"s":"onShowShareboxOnly","f":"..","c":0,"a":["",{}]})
 }
 
 function showNotifications(){
+    hideWidgets()
     send({"s":"onShowNotificationsOnly","f":"..","c":0,"a":["",{"maxWidgetHeight":config.target_height}],"t":"86208861","l":false,"g":true,"r":".."})
 }
 
@@ -34,7 +36,6 @@ function hideWidgets(){
 }
 
 var container = document.createElement('div');
-container.style.overflow = 'hidden';
 container.style.position = 'absolute';
 container.style.top = '0';
 container.style.left = '0';
@@ -44,9 +45,10 @@ onmessage = function(e){
     var j = JSON.parse(e.data);
     if(j.s == 'setNotificationWidgetHeight'){
         container.style.height = j.a[1];
-        port.postMessage({action: "resize", height: parseInt(j.a[1]), width: config.target_width});
+        //port.postMessage({action: "resize", height: parseInt(j.a[1]), width: config.target_width});
     }else if(j.s == '_resizeMe'){
         iframe.style.height = j.a[1].height+'px';
+        port.postMessage({action: "resize", height: j.a[1].height, width: config.target_width});
     }else if(j.s == '_ready'){
         send({"s":"__cb","f":"..","c":1,"a":[1,null],"t":"86208861","l":false,"g":true,"r":".."});
         send({"s":"getVarc","f":"..","c":2,"a":["","base"],"t":"86208861","l":false,"g":true,"r":".."});
@@ -54,10 +56,12 @@ onmessage = function(e){
     }else if(j.s == 'navigateTo'){
         console.log(j.a[1].url); //this is the magical command to open a tab
     }else if(j.s == 'hideNotificationWidget'){
-        //then reopen the default.
-        showSharebox();
+        showNotifications();
+    }else if(j.s == 'setNotificationText'){
+        port.postMessage({action: "update"})
+    }else{
+        console.log(j.s,e)
     }
-    console.log(j.s,e)
 }
 container.appendChild(iframe)
 document.body.appendChild(container)
@@ -67,8 +71,12 @@ port.onMessage.addListener(function(msg){
     if(msg.action == "config"){
         config = msg;
         container.style.width = config.target_width + 'px';
-        iframe.src = 'https://plus.google.com/u/0/_/notifications/frame?hl=en&origin=http%3A%2F%2Fwww.google.com&jsh=r%3Bgc%2F23980661-3686120e#pid=1&id=gbsf&parent=http%3A%2F%2Fwww.google.com&rpctoken=86208861&_methods=onError%2ConInfo%2ChideNotificationWidget%2CpostSharedMessage%2CsetNotificationWidgetHeight%2CswitchTo%2CnavigateTo%2CsetNotificationText%2ChandlePosted%2C_ready%2C_close%2C_open%2C_resizeMe'
-    }else if(msg.action == "minimize"){
+        iframe.src = config.url;
+    }else if(msg.action == "hide"){
+        hideWidgets();
+    }else if(msg.action == "notifications"){
+        showNotifications();
+    }else if(msg.action == "sharebox"){
         showSharebox();
     }
 })

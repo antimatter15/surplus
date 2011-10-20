@@ -1,27 +1,122 @@
-<iframe src="http://www.google.com/404?extension=surplus" id="frame" frameborder="no" scrolling="no"></iframe>
+<div style="width:440px;height:200px;" id="container">
+    <iframe src="http://www.google.com/404?extension=surplus" id="frame" frameborder="no" scrolling="no" width="100%" height="100%"></iframe>
+</div>
 <script>
+    var container = document.getElementById('container');
     var frame = document.getElementById('frame');
-    var control_port;
+    var control_port, inner_port;
+    
+    var current_notifications = 0;
     function restore(){
-        document.adoptNode(frame);
-        document.body.appendChild(frame);
-        control_port.postMessage({action: "minimize"})
+        adopt(document);
+        editing(function(val){
+            if(val == false) control_port.postMessage({action: "hide"});
+        })
+    }
+    window.onbeforeunload = restore;
+    function plus(path){
+        return 'https://plus.google.com/u/'+(localStorage.auth_user||0)+'/' + path
+    }
+    function adopt(doc){
+      doc.adoptNode(frame);
+      doc.adoptNode(container);
+      doc.body.appendChild(container);
+      container.appendChild(frame);
+    }
+    
+    function initiate(doc){
+        adopt(doc);
+        editing(function(val){
+            if(val == false){
+               if(current_notifications == 0){
+                    control_port.postMessage({action: "sharebox"})
+                    chrome.tabs.getSelected(null, function(tab){
+                        inner_port.postMessage({action: "share", current_url: tab.url})
+                    })
+                }else{
+                    control_port.postMessage({action: "notifications"})
+                }
+            }
+        })
+    }
+    
+    function editing(cb){
+        editing.callback = cb;
+        try{
+            inner_port.postMessage({action: "editing"});
+        }catch(err){
+            cb(false)
+        }
     }
     chrome.extension.onConnect.addListener(function(port) {
         if(port.name == "host"){
             port.postMessage({
                 action: "config",
-                target_height: 500,
-                target_width: 440
+                target_height: 550,
+                target_width: 440,
+                url: plus('_/notifications/frame?surplus=inner&hl=en&origin=http%3A%2F%2Fwww.google.com&jsh=r%3Bgc%2F23980661-3686120e#pid=1&id=gbsf&parent=http%3A%2F%2Fwww.google.com&rpctoken=86208861&_methods=onError%2ConInfo%2ChideNotificationWidget%2CpostSharedMessage%2CsetNotificationWidgetHeight%2CswitchTo%2CnavigateTo%2CsetNotificationText%2ChandlePosted%2C_ready%2C_close%2C_open%2C_resizeMe')
             });
             control_port = port;
+        }else if(port.name == "inner"){
+            port.postMessage({action: "accept"});
+            inner_port = port;
         }
         
         port.onMessage.addListener(function(msg){
+            //console.log(msg.action, msg)
             if(msg.action == "resize"){
-                frame.style.width = msg.width + 'px';
-                frame.style.height = msg.height + 'px';
-            }
+                container.style.width = msg.width + 'px';
+                container.style.height =  msg.height + 'px';
+                console.log(msg.height)
+            }else if(msg.action == "reload"){
+                location.reload(true);
+            }else if(msg.action == "update"){
+                updateCount();
+            }else if(msg.action == "editing"){
+                editing.callback(msg.value)
+            }else control_port.postMessage(msg);
+            
         })
-    })
+    });
+    function drawIcon(num){
+        num += '';
+        current_notifications = parseInt(num);
+        if(localStorage.usebadge == 'yes') { 
+          chrome.browserAction.setBadgeText({ text:num=='0'?'':num });
+          chrome.browserAction.setIcon({path: 'img/classic.png'});
+        }else{
+          chrome.browserAction.setBadgeText({ text:'' });
+          var c = document.createElement('canvas').getContext('2d');
+          var none = (num.replace(/[\s0]/g,'') == '');
+          var img = new Image();
+          img.src = none ? 'img/old.png' : 'img/new.png';
+          img.onload = function(){
+            c.drawImage(img, 0, 0);
+            c.font = "bold 13px arial,sans-serif";
+            c.fillStyle = none ? '#CCC' : '#fff';
+            if(parseInt(num) > 9 || num == '9+'){
+              c.fillText('9+', 3, 14);
+            }else{
+              c.fillText(num+'', 6, 14);
+            }
+            chrome.browserAction.setIcon({imageData: c.getImageData(0,0,19,19)})
+          }
+        }
+      }
+    function updateCount(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', plus('_/n/guc'),true);
+        xhr.onload = function(){
+            drawIcon(JSON.parse(xhr.responseText.substr(4))[1]);
+        }
+        xhr.send();
+    }
+    
+    setInterval(updateCount, 1000 * 10 * Math.PI);
+    
+    var popups = chrome.extension.getViews();
+    for(var i = 0; i < popups.length; i++){
+        if(/popup4.html/.test(popups[i].location.href)) popups[i].init();
+    }
+    
 </script>

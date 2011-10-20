@@ -3,20 +3,26 @@
   <head>
     <title>Surplus</title>
     <style>
-      body {
+      * {
         margin: 0;
+        padding: 0;
+      }
+      body {
+        min-width: 440px;
+        min-height: 230px;
+        overflow-x: hidden;
       }
     </style>
   </head>
   <body>
-    <div id="container"></div>
     <script>
-      var frame = chrome.extension.getBackgroundPage().frame;
-      document.adoptNode(frame);
-      document.getElementById('container').appendChild(frame);
+      function init(){
+        chrome.extension.getBackgroundPage().initiate(document);
+      }
       window.onunload = function(){
         chrome.extension.getBackgroundPage().restore();
       }
+      init();
     </script>
   </body>
 </html>

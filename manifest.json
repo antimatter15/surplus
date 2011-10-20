@@ -27,8 +27,8 @@
       "all_frames": true
     },
     {
-      "matches": ["https://plus.google.com/u/*/_/notifications/frame*"],
-      "js": ["inner.js"],
+      "matches": ["https://plus.google.com/*surplus=inner*"],
+      "js": ["inner4.js"],
       "all_frames": true
     }
   ],
