@@ -39,10 +39,10 @@
         }
         editing(function(val){
             if(val == false){
-               if(current_notifications == 0){
+               if(current_notifications == 0 && localStorage.smartshare != 'no'){
                     control_port.postMessage({action: "sharebox"})
                     chrome.tabs.getSelected(null, function(tab){
-                        inner_port.postMessage({action: "share", current_url: tab.url})
+                        inner_port.postMessage({action: "share", current_url: localStorage.currentpage != "no" && tab.url})
                     })
                 }else{
                     control_port.postMessage({action: "notifications"})

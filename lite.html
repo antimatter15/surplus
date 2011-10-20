@@ -94,9 +94,6 @@
   </div>
   <div id="supercontainer">
   
-  <div id="unlucky" style="display:none;padding:10px;font-size:10px;background-color:#FBE092;"> 
-      A bug affecting <b>Chrome 13 on Windows</b> prevents Surplus from fully working. Because of this, <b>Surplus Lite</b> has been automatically enabled and some <b>features may not be availiable</b>. <a target=_blank href="https://github.com/antimatter15/surplus/wiki/The-Unlucky-Chrome-13">read more</a>
-    </div>
   <div id="container">
     <center>Loading...</center>
   </div>
@@ -182,15 +179,11 @@
     function updatelastreadtime(){
       bg.updatelastreadtime(function(){
         load_notifications();
-        bg.manualUpdate();
+        bg.updateCount();
       })
     }
     var bg = chrome.extension.getBackgroundPage();
-    bg.popup_loaded();
-    onunload = function(){
-      bg.popup_closed();
-    }
-    if(bg.unlucky) document.getElementById('unlucky').style.display = '';
+    
     load_notifications()
   </script>
 </body>
