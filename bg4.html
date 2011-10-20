@@ -178,8 +178,9 @@
         var xhr = new XMLHttpRequest();
         xhr.open('get', plus('_/notifications/getnotificationsdata'), true);
         xhr.onload = function(){
-            parseNotifications(eval(xhr.responseText.substr(5)))
-                .slice(0, count).map(displayNotification);
+            if(localStorage.notify == 'yes')
+                parseNotifications(eval(xhr.responseText.substr(5)))
+                    .slice(0, count).map(displayNotification);
             if(localStorage.notifyread == 'yes') updatelastreadtime();
             if(localStorage.notify_sound == 'yes')(new Audio("notify.ogg")).play();
         }
