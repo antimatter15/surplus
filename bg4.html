@@ -36,10 +36,11 @@
     function initiate(doc){
         adopt(doc);
         var popups = chrome.extension.getViews();
-        for(var i = 0; i < popups.length; i++){
-            if(/popup4.html/.test(popups[i].location.href) && popups[i].document != doc)
-                popups[i].close();
-        }
+        if(popups)
+            for(var i = 0; i < popups.length; i++)
+                if(/popup4.html/.test(popups[i].location.href) && popups[i].document != doc)
+                    popups[i].close();
+        
         editing(function(val){
             if(val == false && control_port && inner_port){
                if(current_notifications == 0 && localStorage.smartshare != 'no'){
@@ -95,7 +96,6 @@
             if(msg.action == "resize"){
                 container.style.width = msg.width + 'px';
                 container.style.height =  msg.height + 'px';
-                console.log(msg.height)
             }else if(msg.action == "reload"){
                 location.reload(true);
             }else if(msg.action == "popout"){
