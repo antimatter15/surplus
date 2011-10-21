@@ -2,16 +2,33 @@
 
 It's actually surprisingly interesting how this works.
 
+
+## Surplus4
+
+Surplus4 is the latest revision of the extension, it was almost entirely rewritten and throws out the baggage from the old system. Firstly, in order to get a sense of how different Surplus4 is, one must look back in time to see the original version of Surplus. Google+ had just launched, and there were a few notification extensions which began to pop up, but all of them lacked the one feature that might be considered truly useful - browser integration. But then I sort of saw why: it's not an easy problem to solve.
+
+The problem is that it entails intermingling a third party application with this very likely computer generated mess of javascript and HTML. It's quite likely that the day after the first version was released, the application would stop working because someone at Google added a feature or recompiled.
+
+Surplus had a way around it, which is to cleverly ignore the problem. It took a google website: Google.com, for instance, and then stuck it in its entireity in an iframe. A stylesheet was injected, whose principal mode of operation was setting a bunch of divs to display:none. Then, a content script is used to simulate a click on various buttons to trigger various user interface changes.
+
+But in order for this to all work, there was a tremendous amount of baggage. Most of it was unnecessary. For example, the popup loader was insanely over complex because it tried to solve a problem which was either unsolvable and only seemed to lessen the issue, or ended up being solved by some grander change.
+
+One example was desktop notifications. The first time it was added, desktop notifications was accomplished by opening the dialog in the background, capturing a snapshot of the iframe within an iframe within an iframe, and then prettifying it up before sticking it into a notification. This process had to ensure that the dialog wasn't already open, and there were weird bugs like the notifications panel locking up after an extended duration, so this convoluted locking system was dreamt up.
+
+But Surplus 3.5 brought in something new: Surplus Lite, which was much more than a simple low memory version of the main app. It was a simple and concise library for parsing that weird JSON used to show stuff. This intermingles uncomfortably with the beast that is the Google code, but works immeasurably better in practice.
+
+Surplus 4 is yet another massive act of compromise - a concession to many of the principles. It came about because of a rather disconcerting problem: X-Frame-Options. Google decided to start adding this header to their code, which makes iframe embedding extremely unwieldy. Surplus 4 no longer embeds a normal page, but instead loads the notification and handles communication by taking a Google 404 page and sticking stuff there. 
+
+Presumably Surplus 4.1 will get rid of the requirement of a 404 host frame, and instead connect directly to Google+, but it does not seem necessary for now. However, there is a X-Frame-Options on the HTTPS 404, which may hint at a future which requires this.
+
 ### Contributors
 
 
 Jerome Dane - option to use classic Google+ icon and badge
 
-
 corylulu - document.write surplus iframe
 
-### Squeezing Google into a popup
-
+### Squeezing Google into a popup 
 The background page contains an `<iframe>` which points to Google Video Search. Google Video Search (it used to be Google Blog Search until a few issues were encountered with multiple sign-ins) was chosen because it had the new Google bar, has few dynamic elements so the page should load quickly, and looks fairly abandoned and probably won't change for future compatibility's sake. Google Video Search is pointed to a certain URL which fires a specific content script which reformats the page to work better as a popup.  (`http://video.google.com/?extension=surplus`)
 
 When the button is clicked, Chrome opens up the popup window, `popup.html`. That popup element then sends a trigger to the background page, which forwards the signal to the content script, which then signals Google Video Search's toolbar to expand the notification section. This is done by locating the element and then firing the click event through createEvent and dispatchEvent. Internally, this sends a signal to create a new iframe within Google which does some fascinating stuff that I don't bother with learning more about.
