@@ -9,6 +9,9 @@
     
     var current_notifications = 0;
     function restore(doc){
+        setTimeout(function(){
+            setPopup();
+        }, 762);
         if(!doc || doc.getElementById('frame'))
             adopt(document);
         if(doc.getElementById('frame')){
@@ -205,17 +208,25 @@
     var updater = setInterval(updateCount, 1000 * 10 * Math.PI);
     
     var popups = chrome.extension.getViews();
-    for(var i = 0; i < popups.length; i++){
-        if(/popup4.html/.test(popups[i].location.href)) popups[i].init();
+    if(popups)
+        for(var i = 0; i < popups.length; i++)
+            if(/popup4.html/.test(popups[i].location.href)) popups[i].init();
+    
+    
+    function setPopup(){
+        if(localStorage.mode == "lite"){
+            chrome.browserAction.setPopup({popup:'lite.html'});
+        }else{
+            chrome.browserAction.setPopup({popup:'popup4.html'});
+        }
     }
     
     drawIcon('');
     
+    setPopup();
     if(localStorage.mode == "lite"){
-        chrome.browserAction.setPopup({popup:'lite.html'});
         updateCount();
     }else{
-        chrome.browserAction.setPopup({popup:'popup4.html'});
         frame.src = "http://www.google.com/404?extension=surplus";
     }
 </script>

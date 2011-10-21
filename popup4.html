@@ -17,6 +17,7 @@
   <body>
     <script>
       function init(){
+        chrome.browserAction.setPopup({popup:''});
         chrome.extension.getBackgroundPage().initiate(document);
       }
       window.onbeforeunload = window.onunload = function(){
