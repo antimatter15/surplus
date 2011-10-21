@@ -35,13 +35,15 @@
     
     function initiate(doc){
         adopt(doc);
-        var popups = chrome.extension.getViews();
-        if(popups)
-            for(var i = 0; i < popups.length; i++)
-                if(/popup4.html/.test(popups[i].location.href) && popups[i].document != doc)
-                    popups[i].close();
         
         editing(function(val){
+            var popups = chrome.extension.getViews();
+            if(popups)
+                for(var i = 0; i < popups.length; i++)
+                    if(/popup4.html/.test(popups[i].location.href) && popups[i].document != doc){
+                        console.log("closing a popup index",i)
+                        popups[i].close();
+                    }
             if(val == false && control_port && inner_port){
                if(current_notifications == 0 && localStorage.smartshare != 'no'){
                     control_port.postMessage({action: "sharebox"});
