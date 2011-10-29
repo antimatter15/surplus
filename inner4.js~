@@ -1,6 +1,7 @@
 var port = chrome.extension.connect({name: "inner"});
 
 function init(){
+    console.log("checking");
     if(!document.getElementById('summary-view')) return setTimeout(init, 100);
 
     var share = document.getElementById('summary-view').firstChild;

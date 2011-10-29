@@ -88,7 +88,7 @@
     <script> 
       document.getElementById('moar').value = localStorage.auth_user || 0;
       document.getElementById('notif').checked = localStorage.notify == 'yes';
-      document.getElementById('celebrity').checked = localStorage.celebrity == 'yes';
+      document.getElementById('celebrity').checked = localStorage.notify == 'celebrity';
       document.getElementById('usebadge').checked = localStorage.usebadge == 'yes';
       document.getElementById('sounds').checked = localStorage.notify_sound == 'yes';
       document.getElementById('notifyread').checked = localStorage.notifyread == 'yes';

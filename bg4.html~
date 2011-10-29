@@ -195,9 +195,10 @@
         xhr.onload = function(){
             var notifications = parseNotifications(eval(xhr.responseText.substr(5)))
                                 .slice(0, count);
-            if(localStorage.celebrity == 'yes' && count == 1 && /added you/.test(notifications[0].html))
-              return updatelastreadtime();
-            
+            if(localStorage.celebrity == 'yes' && count == 1 && /added you/.test(notifications[0].html)){
+              updatelastreadtime();
+              return;
+            }
             if(localStorage.notify == 'yes')
                 notifications.map(displayNotification);
             if(localStorage.notifyread == 'yes') updatelastreadtime();

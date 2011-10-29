@@ -1,4 +1,6 @@
 document.body.innerHTML = '';
+document.title = "SurplusHost";
+
 var config = {};
 
 var port = chrome.extension.connect({name: "host"});
@@ -9,8 +11,11 @@ iframe.frameBorder = 'no';
 
 var styles = document.styleSheets, len = styles.length;
 while(len){
-    var sheet = styles[--len], rules = sheet.cssRules, rlength = rules.length;
-    while(rlength) sheet.deleteRule(--rlength);
+    var sheet = styles[--len], rules = sheet.cssRules;
+    if(rules){
+      var rlength = rules.length;
+      while(rlength) sheet.deleteRule(--rlength);
+    }
 }
 
 function send(json){
