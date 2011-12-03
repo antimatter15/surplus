@@ -161,7 +161,7 @@
         var xhr = new XMLHttpRequest();
         xhr.open('get', plus('_/n/guc'),true);
         xhr.onload = function(){
-            var count = JSON.parse(xhr.responseText.substr(4))[1];
+            var count = JSON.parse(xhr.responseText.substr(4))[0][1];
             if(current_notifications < count) getNotifications(count);
             current_notifications = count;
             drawIcon(count);
