@@ -2,8 +2,7 @@ var port = chrome.extension.connect({name: "inner"});
 
 function init(){
     if(!document.getElementById('summary-view')) return setTimeout(init, 100);
-
-    var share = document.getElementById('summary-view').firstChild;
+    var share = document.getElementById('summary-view').firstChild.nextSibling;
     share.style.padding = '0px';
     share.style.paddingLeft = '20px';
     share.style.paddingRight = '20px';
@@ -20,12 +19,17 @@ function init(){
     document.getElementById('surplusback').onclick = function(){
       port.postMessage({action: 'notifications'})
     }
-    var div = document.querySelectorAll('#summary-view>:nth-child(2)>div>div:first-child');
-    for(var i = 0; i < div.length; i++) if(div[i].innerText != '') break;
+
+var div = document.querySelectorAll('#summary-view>div>div>div:first-child');
+for(var i = 0; i < div.length; i++){
+        if(div[i].innerHTML == div[i].innerText && div[i].innerText){
+            break;
+        }
+}
+    
     div = div[i];
     var text = "Notifications";
     div.innerHTML = "<div id='sharebutton' style='cursor:pointer;background: -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;width:16px;height:16px;padding:3px 8px;display:inline'>Share</div> <div id='reloadbutton' style='cursor:pointer;height:15px;position:relative;top:7px;background: url(\""+chrome.extension.getURL('img/view-refresh.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline-block'></div> <div id='popoutbutton' style='cursor:pointer;background: url(\""+chrome.extension.getURL('img/popout.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline-block;height:15px;position:relative;top:7px;'></div> <div id='settingsbutton' style='cursor:pointer;height:15px;position:relative;top:7px;background: url(\""+chrome.extension.getURL('img/wrench.png')+"\")  2px 3px no-repeat, -webkit-linear-gradient(top,whiteSmoke,#F1F1F1);border: 1px solid rgba(0, 0, 0, 0.1);color: #666;border-radius: 4px;padding:3px 10px;display:inline-block'></div>";
-    
     document.getElementById('sharebutton').onclick = function(){
       port.postMessage({action: 'sharebox'})
     }

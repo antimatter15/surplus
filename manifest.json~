@@ -1,6 +1,6 @@
 {
   "name": "Surplus",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Google Plus Integration for Chrome",
   "background_page": "bg4.html",
   "icons": {

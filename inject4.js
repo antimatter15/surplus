@@ -4,10 +4,8 @@ document.title = "SurplusHost";
 var config = {};
 
 var port = chrome.extension.connect({name: "host"});
-var iframe = document.createElement('iframe');
-iframe.scrolling = 'no';
-iframe.width = '100%';
-iframe.frameBorder = 'no';
+
+
 
 var styles = document.styleSheets, len = styles.length;
 while(len){
@@ -20,7 +18,8 @@ while(len){
 
 function send(json){
     var script = document.createElement('script');
-    script.innerHTML = 'frames[0].postMessage('+JSON.stringify(JSON.stringify(json))+',"https://plus.google.com");';
+    script.innerHTML = 'frame.'+json+'()';
+    //'frames[0].postMessage('+JSON.stringify(JSON.stringify(json))+',"https://plus.google.com");';
     document.body.appendChild(script);
     document.body.removeChild(script);
     //frames[0].postMessage(JSON.stringify(json), 'https://plus.google.com');
@@ -28,24 +27,24 @@ function send(json){
 
 function showSharebox(){
     hideWidgets()
-    send({"s":"onShowShareboxOnly","f":"..","c":0,"a":["",{}]})
+    //send({"s":"onShowShareboxOnly","f":"..","c":0,"a":["",{}]})
+    send('onShowShareboxOnly');
 }
 
 function showNotifications(){
-    hideWidgets()
-    send({"s":"onShowNotificationsOnly","f":"..","c":0,"a":["",{"maxWidgetHeight":config.target_height}],"t":"86208861","l":false,"g":true,"r":".."})
+    hideWidgets();
+    send('onShowNotificationsOnly');
+    //hideWidgets()
+    //send({"s":"onShowNotificationsOnly","f":"..","c":0,"a":["",{"maxWidgetHeight":config.target_height}],"t":"86208861","l":false,"g":true,"r":".."})
 }
 
 function hideWidgets(){
-    send({"s":"onHide","f":"..","c":0,"a":["",{}]})
+    send('onHide');
+    //send({"s":"onHide","f":"..","c":0,"a":["",{}]})
 }
 
-var container = document.createElement('div');
-container.style.position = 'absolute';
-container.style.top = '0';
-container.style.left = '0';
 
-
+/*
 onmessage = function(e){
     var j = JSON.parse(e.data);
     if(j.s == 'setNotificationWidgetHeight'){
@@ -70,15 +69,41 @@ onmessage = function(e){
         console.log(j.s,e)
     }
 }
-container.appendChild(iframe)
+*/
+
+var container = document.createElement('div');
+container.id = 'notifications-target';
+container.style.position = 'absolute';
+container.style.top = '0';
+container.style.left = '0';
 document.body.appendChild(container)
 
+var comm = document.createElement('div');
+comm.id = 'comm';
+comm.style.display = 'none';
+document.body.appendChild(comm)
+comm.addEventListener('SurplusCoreEvent', function(){
+    var j = (JSON.parse(comm.innerText));
+    if(j.name == 'height'){
+        var h = Math.max(parseInt(j.height), 400);
+        container.style.height = h + 'px';
+        port.postMessage({action: "resize", height: h, width: config.target_width});
+    }else if(j.name == 'text'){
+        port.postMessage({action: "update"})
+    }
+})
 
+var s = document.createElement('script');
+s.src = chrome.extension.getURL('core5.js');
+document.body.appendChild(s);
+
+
+console.log("added something")
 port.onMessage.addListener(function(msg){
     if(msg.action == "config"){
         config = msg;
         container.style.width = config.target_width + 'px';
-        iframe.src = config.url;
+        //iframe.src = config.url;
     }else if(msg.action == "hide"){
         hideWidgets();
     }else if(msg.action == "notifications"){
